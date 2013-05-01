@@ -96,7 +96,8 @@ public class ChatServer {
      */
     public static void main(String[] args) {
         try {
-            runChatServer();
+            if(args.length == 2 && args[0].equals("-p") && Character.isDigit(args[1].charAt(1)))
+            runChatServer(Integer.parseInt(args[1]));
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -105,8 +106,8 @@ public class ChatServer {
 
     }
     
-    public static void runChatServer() throws IOException {
-        ChatServer server = new ChatServer(4444);
+    public static void runChatServer(int port) throws IOException {
+        ChatServer server = new ChatServer(port);
         server.serve();
     }
 
