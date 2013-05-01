@@ -106,8 +106,7 @@ public class ChatServer {
     }
     
     public static void runChatServer() throws IOException {
-        final int port = 4444;
-        ChatServer server = new ChatServer(port);
+        ChatServer server = new ChatServer(4444);
         server.serve();
     }
 
