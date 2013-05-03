@@ -6,12 +6,14 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+
+import client.UserInfo;
 
 public class ChatServer {
     private final ServerSocket serverSocket;
-    private ConcurrentHashMap<String,Socket> nameSock;
-    
+    private static ConcurrentHashMap<String, UserInfo> infoMap;
     /**
      * Makes a ChatServer that listens for connections on port.
      * @param port port number, requires 0 <= port <= 65535.
@@ -42,16 +44,17 @@ public class ChatServer {
      */
     static void handleConnection(Socket socket) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-        
+        PrintWriter out = null;
         try {
             for (String line = in.readLine(); line!=null; line = in.readLine()) {
-                String output = handleRequest(line);
-                if(output != null) {
-                    out.println(output);
-                }
-                else {
-                    System.out.println("What is even going on??????????????????");
+                ServerMessage outMessage = handleRequest(line, socket);
+                if (outMessage != null) {
+                    for (Socket recipient: outMessage.getRecipients()) {
+                        out = new PrintWriter(recipient.getOutputStream(), true);
+                        out.println(outMessage.getText());
+                    }
+                } else {
+                    System.out.println("OUTPUT WAS NULL...");
                 }
             }
         } finally {
@@ -69,27 +72,197 @@ public class ChatServer {
      * @return
      * @throws IOException
      */
-    private static String handleRequest(String input) throws IOException {
+    private static ServerMessage handleRequest(String input, Socket socket) throws IOException {
         String [] tokens = input.split(" ");
         String flag = tokens[0];
         
         if(flag.equals("-l")) {
-            System.out.println("login");
+            return addUser(tokens[1], tokens[2], socket);
         } else if(flag.equals("-q")) {
-            System.out.println("quit");
+            return logout(tokens[1]);
         } else if(flag.equals("-c")) {
-            System.out.println("add_message");
+            return updateConvo(input);
         } else if(flag.equals("-s")) {
-            System.out.println("start_convo");
+            return startConvo(input);
         } else if(flag.equals("-x")) {
-            System.out.println("close_convo");
+            return closeConvo(input);
         } else {
-            System.out.println("ohnoyoudidn't");
+            System.out.println("THE THING ISN'T A REAL FLAG, FOOL!");
         }
         
         return null;
     }
-
+    
+    /**
+     * Called when a new user tries to come online. Adds user if username is
+     * unique, returns message to send to client
+     * @param username the potential username
+     * @param color the color
+     * @param socket the socket this user is connected by
+     * @return Message to return to client:
+     * INVALID_USER if username already in use
+     * ONLINE_USERS if username is unique
+     */
+    private static ServerMessage addUser(String username, String color, Socket socket) {
+        if (infoMap.containsKey(username)) {
+            //Username is already used, return INVALID_USER message
+            return new ServerMessage(justMe(username), "-i " + username);
+        } else {
+            //Make new UserInfo
+            infoMap.put(username, new UserInfo(username, color, socket));
+            //Return ONLINE_USERS message, to be sent to everyone but me
+            StringBuilder sb = new StringBuilder();
+            sb.append("-f ");
+            for (String un: infoMap.keySet()) {
+                sb.append(un);
+                sb.append(" ");
+                sb.append(infoMap.get(un).getColor());
+                sb.append(" ");
+            } return new ServerMessage(everyoneButMe(username), sb.toString());
+        }
+    }
+    
+    /**
+     * Called when client logs out
+     * @param username the username of the user that logged out
+     * @return OFFLINE message
+     */
+    private static ServerMessage logout(String username) {
+        infoMap.remove(username);
+        return new ServerMessage(everyoneButMe(username), "-q " + username);
+    }
+    
+    /**
+     * called when someone sends a new message
+     * @param message the ADD_MSG message
+     * @return UPDATE message to everyone in convo except for whoever sent the message
+     */
+    private static ServerMessage updateConvo(String message) {
+        //Parse the message data into appropriate fields
+        boolean convo_id = false;
+        StringBuilder ci = new StringBuilder();
+        boolean user = false;
+        StringBuilder un = new StringBuilder();
+        boolean text = false;
+        StringBuilder msg = new StringBuilder();
+        for (String token: message.split(" ")) {
+            if (convo_id) {
+                ci.append(token);
+                ci.append(" ");
+            } else if (user) {
+                un.append(token);
+                un.append(" ");
+            } else if (text) {
+                msg.append(token);
+                msg.append(" ");
+            }
+            if (token.equals("-c")) {
+                convo_id = true;
+            } else if (token.equals("-u")) {
+                convo_id = false;
+                user = true;
+            } else if (token.equals("-t")) {
+                user = false;
+                text = true;
+            }
+        }
+        return new ServerMessage(everyoneInConvoButMe(ci.toString(), un.toString()), message);
+    }
+    
+    /**
+     * called when user starts new conversation
+     * @param message the START_CONVO message
+     * @return a START_CONVO ServerMessage for everyone except for whoever started the convo
+     */
+    private static ServerMessage startConvo(String message) {
+        boolean convo_id = false;
+        StringBuilder ci = new StringBuilder();
+        boolean user = false;
+        StringBuilder un = new StringBuilder();
+        for (String token: message.split(" ")) {
+            if (convo_id) {
+                ci.append(token);
+                ci.append(" ");
+            } else if (user) {
+                un.append(token);
+                un.append(" ");
+            } if (token.equals("-s")) {
+                convo_id = true;
+            } else if (token.equals("-u")) {
+                convo_id = false;
+                user = true;
+            }
+        } return new ServerMessage(everyoneInConvoButMe(ci.toString(), un.toString()), message);   
+    }
+    
+    /**
+     * called when user closes a conversation
+     * @param message the CLOSE_CONVO message
+     * @return a CLOSE_CONVO ServerMessage for everyone except for whoever closed the convo
+     */
+    private static ServerMessage closeConvo(String message) {
+        boolean convo_id = false;
+        StringBuilder ci = new StringBuilder();
+        boolean user = false;
+        StringBuilder un = new StringBuilder();
+        for (String token: message.split(" ")) {
+            if (convo_id) {
+                ci.append(token);
+                ci.append(" ");
+            } else if (user) {
+                un.append(token);
+                un.append(" ");
+            } if (token.equals("-x")) {
+                convo_id = true;
+            } else if (token.equals("-u")) {
+                convo_id = false;
+                user = true;
+            }
+        } return new ServerMessage(everyoneInConvoButMe(ci.toString(), un.toString()), message);   
+    }
+    
+    /**
+     * Make an ArrayList of sockets to send to if just returning to same client
+     * @param username the username of the client to send to
+     * @return ArrayList containing socket just of that username
+     */
+    private static ArrayList<Socket> justMe (String username) {
+        ArrayList<Socket> recipients = new ArrayList<Socket>();
+        recipients.add(infoMap.get(username).getSocket());
+        return recipients;
+    }
+    
+    /**
+     * Make an ArrayList of sockets for everyone else but the username
+     * @param username the username not to recieve the message
+     * @return ArrayList with sockets for everyone else
+     */
+    private static ArrayList<Socket> everyoneButMe (String username) {
+        ArrayList<Socket> recipients = new ArrayList<Socket>();
+        for (String un: infoMap.keySet()) {
+            if (!un.equals(username)) {
+                recipients.add(infoMap.get(un).getSocket());
+            }
+        }
+        return recipients;
+    }
+    
+    /**
+     * Makes an ArrayList of sockets for everyone else in conversation but username
+     * @param convoID the conversation to be updated
+     * @param username the username that shouldn't be updated
+     * @return ArrayList with sockets of everyone relevant
+     */
+    private static ArrayList<Socket> everyoneInConvoButMe (String convoID, String username) {
+        ArrayList<Socket> recipients = new ArrayList<Socket>();
+        for (String un: convoID.split(" ")) {
+            if (!un.equals(username)) {
+                recipients.add(infoMap.get(un).getSocket());
+            }
+        }
+        return recipients;
+    }
+    
     /**
      * Runs the ChatServer
      * @param args
@@ -102,8 +275,6 @@ public class ChatServer {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
-
     }
     
     public static void runChatServer(int port) throws IOException {

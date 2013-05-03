@@ -9,7 +9,7 @@ import java.net.Socket;
  */
 public class UserInfo {
     private final String username;
-    private final Color color;
+    private final String color;
     private final Socket socket;
     /**
      * Constructor for use by the server to hold information about
@@ -18,7 +18,7 @@ public class UserInfo {
      * @param color the color associated with that user
      * @param socket the socket where they can be reached
      */
-    public UserInfo(String username, Color color, Socket socket) {
+    public UserInfo(String username, String color, Socket socket) {
         this.username = username;
         this.color = color;
         this.socket = socket;
@@ -29,7 +29,7 @@ public class UserInfo {
      * @param username the username of the user.
      * @param color the color associated with that user
      */
-    public UserInfo(String username, Color color) {
+    public UserInfo(String username, String color) {
         this.username = username;
         this.color = color;
         this.socket = null;
@@ -42,10 +42,10 @@ public class UserInfo {
         return this.username;
     }
     /**
-     * Gets the color for this user
+     * Gets the color for this user as a string
      * @return the color
      */
-    public Color getColor() {
+    public String getColor() {
         return this.color;
     }
     /**
