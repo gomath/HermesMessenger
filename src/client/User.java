@@ -60,13 +60,13 @@ public class User {
             ConcurrentHashMap<String, UserInfo> map = new ConcurrentHashMap<String, UserInfo>();
             for(int i=1; i<tokens.length; i++){
                 if(i%2==0){
-                    map.put(tokens[i], new UserInfo(tokens[i],Color.getColor(tokens[i+1])));
+                    map.put(tokens[i], new UserInfo(tokens[i],tokens[i+1]));
                 }
             }   
             setOnlineUsers(map);
         }
         else if (tokens[0].equals("-o")){
-            addOnlineUser(new UserInfo(tokens[1],Color.getColor(tokens[2])));
+            addOnlineUser(new UserInfo(tokens[1],tokens[2]));
         }
         else if (tokens[0].equals("-q")){
             removeOnlineUser(tokens[1]);
