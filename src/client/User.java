@@ -69,7 +69,10 @@ public class User {
     private static void handleRequest(String input) {
         String[] tokens = input.split(" ");
         System.out.println("handling request: " + input);
-        if (tokens[0].equals("-f")) {
+        if (input.length()==0){
+            ;
+        }
+        else if (tokens[0].equals("-f")) {
             usernameSuccess = "true";
             System.out.println("success");
             ConcurrentHashMap<String, UserInfo> map = new ConcurrentHashMap<String, UserInfo>();
@@ -109,8 +112,11 @@ public class User {
             usernameSuccess = "false";
         }
         
+        
         // Should never get here--make sure to return in each of the valid cases above.
-        throw new UnsupportedOperationException();
+        else{
+            throw new UnsupportedOperationException();
+        }
     }
     
     
