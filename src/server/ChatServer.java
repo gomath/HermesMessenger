@@ -47,14 +47,12 @@ public class ChatServer {
         PrintWriter out = null;
         try {
             for (String line = in.readLine(); line!=null; line = in.readLine()) {
-                ServerMessage outMessage = handleClientRequest(line, socket);
-                if (outMessage != null) {
-                    for (Socket recipient: outMessage.getRecipients()) {
+                ArrayList<ServerMessage> outMessages = handleClientRequest(line, socket);
+                for(ServerMessage message: outMessages) {
+                    for (Socket recipient: message.getRecipients()) {
                         out = new PrintWriter(recipient.getOutputStream(), true);
-                        out.println(outMessage.getText());
+                        out.println(message.getText());
                     }
-                } else {
-                    System.out.println("OUTPUT WAS NULL...");
                 }
             }
         } finally {
@@ -72,7 +70,7 @@ public class ChatServer {
      * @return
      * @throws IOException
      */
-    public static ServerMessage handleClientRequest(String input, Socket socket) throws IOException {
+    public static ArrayList<ServerMessage> handleClientRequest(String input, Socket socket) throws IOException {
         String [] tokens = input.split(" ");
         String flag = tokens[0];
         
@@ -103,10 +101,12 @@ public class ChatServer {
      * INVALID_USER if username already in use
      * ONLINE_USERS if username is unique
      */
-    private static ServerMessage addUser(String username, String color, Socket socket) {
+    private static ArrayList<ServerMessage> addUser(String username, String color, Socket socket) {
+        ArrayList<ServerMessage> messageList = new ArrayList<ServerMessage>();
         if (infoMap.containsKey(username)) {
             //Username is already used, return INVALID_USER message
-            return new ServerMessage(justMe(username), "-i " + username);
+            messageList.add(new ServerMessage(justMe(username), "-i " + username));
+            return messageList;
         } else {
             //Make new UserInfo
             infoMap.put(username, new UserInfo(username, color, socket));
@@ -114,12 +114,20 @@ public class ChatServer {
             StringBuilder sb = new StringBuilder();
             sb.append("-f ");
             for (String un: infoMap.keySet()) {
-                sb.append(un);
-                sb.append(" ");
-                sb.append(infoMap.get(un).getColor());
-                sb.append(" ");
-            } return new ServerMessage(everyoneButMe(username), sb.toString());
+                if(un != username) {
+                    sb.append(un);
+                    sb.append(" ");
+                    sb.append(infoMap.get(un).getColor());
+                    sb.append(" ");
+                }
+            } 
+            messageList.add(new ServerMessage(justMe(username), sb.toString()));
+            String notifyOthers = "-o "+username+" "+color;
+            ArrayList<Socket> socketList = everyoneButMe(username);
+            socketList.remove(socket);
+            messageList.add(new ServerMessage(everyoneButMe(username), notifyOthers));
         }
+        return messageList;
     }
     
     /**
@@ -127,9 +135,11 @@ public class ChatServer {
      * @param username the username of the user that logged out
      * @return OFFLINE message
      */
-    private static ServerMessage logout(String username) {
+    private static ArrayList<ServerMessage> logout(String username) {
+        ArrayList<ServerMessage> messageList = new ArrayList<ServerMessage>();
         infoMap.remove(username);
-        return new ServerMessage(everyoneButMe(username), "-q " + username);
+        messageList.add(new ServerMessage(everyoneButMe(username), "-q " + username));
+        return messageList;
     }
     
     /**
@@ -137,7 +147,8 @@ public class ChatServer {
      * @param message the ADD_MSG message
      * @return UPDATE message to everyone in convo except for whoever sent the message
      */
-    private static ServerMessage updateConvo(String message) {
+    private static ArrayList<ServerMessage> updateConvo(String message) {
+        ArrayList<ServerMessage> messageList = new ArrayList<ServerMessage>();
         //Parse the message data into appropriate fields
         boolean convo_id = false;
         StringBuilder ci = new StringBuilder();
@@ -166,7 +177,8 @@ public class ChatServer {
                 text = true;
             }
         }
-        return new ServerMessage(everyoneInConvoButMe(ci.toString(), un.toString()), message);
+        messageList.add(new ServerMessage(everyoneInConvoButMe(ci.toString(), un.toString()), message));
+        return messageList;
     }
     
     /**
@@ -174,7 +186,8 @@ public class ChatServer {
      * @param message the START_CONVO message
      * @return a START_CONVO ServerMessage for everyone except for whoever started the convo
      */
-    private static ServerMessage startConvo(String message) {
+    private static ArrayList<ServerMessage> startConvo(String message) {
+        ArrayList<ServerMessage> messageList = new ArrayList<ServerMessage>();
         boolean convo_id = false;
         StringBuilder ci = new StringBuilder();
         boolean user = false;
@@ -192,7 +205,8 @@ public class ChatServer {
                 convo_id = false;
                 user = true;
             }
-        } return new ServerMessage(everyoneInConvoButMe(ci.toString(), un.toString()), message);   
+        } messageList.add(new ServerMessage(everyoneInConvoButMe(ci.toString(), un.toString()), message)); 
+        return messageList;
     }
     
     /**
@@ -200,7 +214,8 @@ public class ChatServer {
      * @param message the CLOSE_CONVO message
      * @return a CLOSE_CONVO ServerMessage for everyone except for whoever closed the convo
      */
-    private static ServerMessage closeConvo(String message) {
+    private static ArrayList<ServerMessage> closeConvo(String message) {
+        ArrayList<ServerMessage> messageList = new ArrayList<ServerMessage>();
         boolean convo_id = false;
         StringBuilder ci = new StringBuilder();
         boolean user = false;
@@ -218,7 +233,8 @@ public class ChatServer {
                 convo_id = false;
                 user = true;
             }
-        } return new ServerMessage(everyoneInConvoButMe(ci.toString(), un.toString()), message);   
+        } messageList.add(new ServerMessage(everyoneInConvoButMe(ci.toString(), un.toString()), message)); 
+        return messageList;
     }
     
     /**
@@ -239,6 +255,7 @@ public class ChatServer {
      */
     private static ArrayList<Socket> everyoneButMe (String username) {
         ArrayList<Socket> recipients = new ArrayList<Socket>();
+        
         for (String un: infoMap.keySet()) {
             if (!un.equals(username)) {
                 recipients.add(infoMap.get(un).getSocket());

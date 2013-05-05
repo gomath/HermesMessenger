@@ -1,6 +1,8 @@
 package server;
 
+import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class ChatServerThread extends Thread {
     Socket socket;
@@ -8,17 +10,24 @@ public class ChatServerThread extends Thread {
     public ChatServerThread(Socket socky) {
         socket = socky;
     }
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
-    }
+    
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
+        try {
+            ChatServer.handleConnection(socket);
+        } catch (SocketException e) {
+            return;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         
     }
 
