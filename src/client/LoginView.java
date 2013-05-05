@@ -135,8 +135,13 @@ public class LoginView extends JFrame{
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 try {
-                    ChatClient.attemptLogin(ipAddress.getText(), portNumber.getText(), username.getText(), (String) colorDropDown.getSelectedItem());
-                    exit();
+                    if(ChatClient.attemptLogin(ipAddress.getText(), portNumber.getText(), username.getText(), (String) colorDropDown.getSelectedItem())) {
+                        exit();
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(getContentPane(), "Pick another username, loser");
+                    }
+                    //exit();
                 } catch (NumberFormatException e1) {
                     //INVALID PORT NUMBER
                     JOptionPane.showMessageDialog(getContentPane(), "Invalid port number");
@@ -149,7 +154,8 @@ public class LoginView extends JFrame{
                     JOptionPane.showMessageDialog(getContentPane(), "Invalid Username");
                     username.setText("Username");
                 } catch (Exception e4) {
-                    JOptionPane.showMessageDialog(getContentPane(), e4);
+                    System.out.println(e4);
+                    JOptionPane.showMessageDialog(getContentPane(), e4.getStackTrace());
                     ipAddress.setText("IP Address");
                     portNumber.setText("Port");
                     username.setText("Username");

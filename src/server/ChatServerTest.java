@@ -19,55 +19,14 @@ import client.User;
 
 public class ChatServerTest {
 
-    @Test
-    /**
-     * Makes sure no exceptions are thrown
-     * @throws UnknownHostException
-     * @throws IOException
-     */
-    public void runServerTest() throws UnknownHostException, IOException, InterruptedException {
-        class serverThread implements Runnable {
-
-            @Override
-            public void run() {
-                ChatServer.main(new String[] {"-p","4444"});
-                
-            } 
-        }
-        System.out.println("hey");
-        serverThread myRunnableThread = new serverThread();
-        Thread myThread = new Thread(myRunnableThread);
-        myThread.start();
-        System.out.println("you");
-        String connectInfo = "-l gomath black";
-        try {
-            Socket socket = new Socket("18.189.47.90", 4444);
-            System.out.println("connection success");
-            PrintWriter out = new PrintWriter(socket.getOutputStream());
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        
-            out.print(connectInfo);
-        
-            for (String line = in.readLine(); line!=null; line = in.readLine()) {
-                    
-                    System.out.println(line);
-            
-            }
-            socket.close(); 
-        } catch(ConnectException e) {
-            System.out.println("ha caught you");
-        }
-        System.out.println("success?");
-        
-    } 
     
-    //@Test
+    @Test
     /**
      * Tests that login message from client is handled appropriately
      */
     public void loginTest() throws IOException, InterruptedException {
-        Socket socket = new Socket("18.189.47.90", 4444);
-        ArrayList<ServerMessage> message = ChatServer.handleClientRequest("-l gomath black",socket);
+        Socket socket = new Socket();
+        ArrayList<ServerMessage> message = ChatServer.handleClientRequest("-l guillermo black",socket);
         for(ServerMessage msg: message) {
             System.out.println(msg.getText());
         }
@@ -99,6 +58,8 @@ public class ChatServerTest {
         }
         
     }
+    
+    
     /**
      * test socket/server communication
      * @throws IOException
@@ -119,5 +80,46 @@ public class ChatServerTest {
         }
         socket.close();
     }
+    
+    @Test
+    /**
+     * Makes sure no exceptions are thrown
+     * @throws UnknownHostException
+     * @throws IOException
+     */
+    public void runServerTest() throws UnknownHostException, IOException, InterruptedException {
+        class serverThread implements Runnable {
+
+            @Override
+            public void run() {
+                ChatServer.main(new String[] {"-p","4444"});
+                
+            } 
+        }
+        System.out.println("hey");
+        serverThread myRunnableThread = new serverThread();
+        Thread myThread = new Thread(myRunnableThread);
+        myThread.start();
+        System.out.println("you");
+        String connectInfo = "-l gomath black\n";
+        try {
+            Socket socket = new Socket("localhost", 4444);
+            System.out.println("connection success");
+            PrintWriter out = new PrintWriter(socket.getOutputStream());
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        
+            out.print(connectInfo);
+            out.flush();
+        
+            String logout = "-q gomath\n";
+            out.print(logout);
+            out.flush();
+            socket.close(); 
+        } catch(ConnectException e) {
+            System.out.println("ha caught you");
+        }
+        System.out.println("success?");
+        
+    } 
 
 }

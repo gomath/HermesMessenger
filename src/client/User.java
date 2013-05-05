@@ -70,7 +70,7 @@ public class User {
         }
     }
     
-    private static void handleRequest(String input) {
+    static void handleRequest(String input) {
         String[] tokens = input.split(" ");
         System.out.println("Client handling request: " + input);
         if (input.length()==0){
