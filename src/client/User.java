@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 
 import exceptions.InvalidUsernameException;
@@ -139,7 +142,13 @@ public class User {
      * Tell the server to start a new conversation
      * @param convo the Conversation to start
      */
-    public static String startConvo(Conversation convo){
+    public static String startConvo(Object[] usernames){
+        ConcurrentHashMap<String, UserInfo> participants = new ConcurrentHashMap<String, UserInfo>();
+        for (Object un: usernames) {
+            participants.put((String) un, onlineUsers.get(un));
+        }
+        Conversation convo = new Conversation(participants);
+        addNewMyConvo(convo);
         return sendMessageToServer("-s " + convo.getConvoID());
     }
     
@@ -189,6 +198,7 @@ public class User {
      * Tell the server to disconnect the user
      */
     public static void quit(){
+        UserGUI.openLoginView();
         sendMessageToServer("-q " + username);
     }
     
