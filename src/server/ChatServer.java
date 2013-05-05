@@ -13,7 +13,7 @@ import client.UserInfo;
 
 public class ChatServer {
     private final ServerSocket serverSocket;
-    private static ConcurrentHashMap<String, UserInfo> infoMap;
+    private static ConcurrentHashMap<String, UserInfo> infoMap = new ConcurrentHashMap<String,UserInfo>();
     /**
      * Makes a ChatServer that listens for connections on port.
      * @param port port number, requires 0 <= port <= 65535.
@@ -72,7 +72,7 @@ public class ChatServer {
      * @return
      * @throws IOException
      */
-    private static ServerMessage handleClientRequest(String input, Socket socket) throws IOException {
+    public static ServerMessage handleClientRequest(String input, Socket socket) throws IOException {
         String [] tokens = input.split(" ");
         String flag = tokens[0];
         
