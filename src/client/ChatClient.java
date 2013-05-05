@@ -22,6 +22,7 @@ public class ChatClient {
     }
     
     public static void attemptLogin(String IP, String port, String username, String color) throws UnknownHostException, IOException, SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException{
+        System.out.println(username + "attempting login");
         Socket socket = new Socket(IP, Integer.parseInt(port));
         System.out.println("socket made " + socket.toString());
         int i=0;

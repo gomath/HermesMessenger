@@ -52,6 +52,7 @@ public class User {
      * @throws IOException if connection has an error or terminates unexpectedly
      */
     public static void handleConnection(Socket socket) throws IOException {
+        System.out.println("client handling connection");
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
@@ -68,12 +69,15 @@ public class User {
     
     private static void handleRequest(String input) {
         String[] tokens = input.split(" ");
+        System.out.println("Client handling request: " + input);
         if (input.length()==0){
             ;
         }
         else if (tokens[0].equals("-f")) {
+            System.out.println(Thread.currentThread().getId());
+            System.out.println("did you get it? -f");
             usernameSuccess = "true";
-            lock.notify();
+            //lock.notify();
             ConcurrentHashMap<String, UserInfo> map = new ConcurrentHashMap<String, UserInfo>();
             for(int i=1; i<tokens.length; i++){
                 if(i%2==1){
@@ -109,7 +113,7 @@ public class User {
         
         else if(tokens[0].equals("-i")){
             usernameSuccess = "false";
-            lock.notify();
+            //lock.notify();
         }
         
         
@@ -158,22 +162,25 @@ public class User {
     }
     
     public static String login(){
+        System.out.println("login");
+        System.out.println("login: " + Thread.currentThread().getId());
         sendMessageToServer("-l " + username + " " + color.toString());
-        synchronized(lock){
-            while(true){
-                try {
-                    lock.wait();
-                    if(usernameSuccess.equals("true")){
-                        return "-l " + username + " " + color.toString();
-                    }
-                    else{
-                        throw new InvalidUsernameException();
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        return "";
+//        synchronized(lock){
+//            while(true){
+//                try {
+//                    lock.wait();
+//                    if(usernameSuccess.equals("true")){
+//                        return "-l " + username + " " + color.toString();
+//                    }
+//                    else{
+//                        throw new InvalidUsernameException();
+//                    }
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
         
         
     }
