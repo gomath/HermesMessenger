@@ -10,12 +10,13 @@ import java.net.UnknownHostException;
 import exceptions.InvalidUsernameException;
 
 public class ChatClient {
-    private final UserGUI gui;
+    private final GUIThread guiThread;
     private static User user;
     
     public ChatClient(){
-        this.gui = new UserGUI();
+        //this.gui = new UserGUI();
         GUIThread guiThread = new GUIThread();
+        this.guiThread = guiThread;
         System.out.println("starting");
         new Thread(guiThread).start();
     }
