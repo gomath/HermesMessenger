@@ -1,6 +1,8 @@
 package client;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -13,6 +15,7 @@ import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -25,10 +28,24 @@ public class LoginView extends JFrame{
     private final JTextField username;
     private final JComboBox colorDropDown;
     private final JButton submitButton;
-    
+    private final JLabel hermes;
+    private final JLabel messenger;
+
     public LoginView() {
+        setTitle("Hermes Messenger Login");
+        setBackground(new Color(96, 80, 220));
         setPreferredSize(new Dimension(600,400));
-    
+        
+        //HERMES
+        hermes = new JLabel("HERMES");
+        hermes.setForeground(Color.white);
+        hermes.setAlignmentY(CENTER_ALIGNMENT);
+        hermes.setFont(new Font("Serif", Font.BOLD, 50));
+        messenger = new JLabel("MESSENGER");
+        messenger.setForeground(Color.black);
+        messenger.setAlignmentY(CENTER_ALIGNMENT);
+        messenger.setFont(new Font("SansSerif", Font.PLAIN, 25));
+
         //IP ADDRESS FIELD
         ipAddress = new JTextField();
         ipAddress.setText("IP Address");
@@ -147,19 +164,25 @@ public class LoginView extends JFrame{
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
         //HORIZONTAL GROUPINGS
-        layout.setHorizontalGroup(layout.createSequentialGroup()
-                .addComponent(ipAddress)
-                .addComponent(portNumber)
-                .addComponent(username)
-                .addComponent(colorDropDown)
-                .addComponent(submitButton));
+        layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                .addComponent(hermes)
+                .addComponent(messenger)
+                .addGroup(layout.createSequentialGroup()
+                    .addComponent(ipAddress)
+                    .addComponent(portNumber)
+                    .addComponent(username)
+                    .addComponent(colorDropDown)
+                    .addComponent(submitButton)));
         //VERTICAL GROUPINGS
-        layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                .addComponent(ipAddress)
-                .addComponent(portNumber)
-                .addComponent(username)
-                .addComponent(colorDropDown)
-                .addComponent(submitButton));
+        layout.setVerticalGroup(layout.createSequentialGroup()
+                .addComponent(hermes)
+                .addComponent(messenger)
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                    .addComponent(ipAddress)
+                    .addComponent(portNumber)
+                    .addComponent(username)
+                    .addComponent(colorDropDown)
+                    .addComponent(submitButton)));
         getRootPane().setDefaultButton(submitButton);
         pack();
     }
