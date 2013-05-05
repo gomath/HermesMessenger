@@ -161,10 +161,10 @@ public class ChatServer {
         boolean text = false;
         StringBuilder msg = new StringBuilder();
         for (String token: message.split(" ")) {
-            if (convo_id) {
+            if (convo_id && !token.equals("-u")) {
                 ci.append(token);
                 ci.append(" ");
-            } else if (user) {
+            } else if (user && !token.equals("-t")) {
                 un.append(token);
                 un.append(" ");
             } else if (text) {
@@ -197,7 +197,7 @@ public class ChatServer {
         boolean user = false;
         StringBuilder un = new StringBuilder();
         for (String token: message.split(" ")) {
-            if (convo_id) {
+            if (convo_id && !token.equals("-u")) {
                 ci.append(token);
                 ci.append(" ");
             } else if (user) {
@@ -225,7 +225,7 @@ public class ChatServer {
         boolean user = false;
         StringBuilder un = new StringBuilder();
         for (String token: message.split(" ")) {
-            if (convo_id) {
+            if (convo_id && !token.equals("-u")) {
                 ci.append(token);
                 ci.append(" ");
             } else if (user) {
@@ -278,6 +278,7 @@ public class ChatServer {
         ArrayList<Socket> recipients = new ArrayList<Socket>();
         for (String un: convoID.split(" ")) {
             if (!un.equals(username)) {
+                System.out.println("INFOMAP ERYONE IN CONVO BUT ME: " + un + infoMap.keySet() + infoMap.get(un));
                 recipients.add(infoMap.get(un).getSocket());
             }
         }

@@ -7,10 +7,10 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -23,19 +23,20 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.ListModel;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-
-import exceptions.InvalidUsernameException;
+import javax.swing.table.DefaultTableModel;
 
 public class ConversationView extends JPanel{
-    private final JTabbedPane tabby;
+    private static JTabbedPane tabby;
     private static JMenuBar menuBar;
     private final JMenu file;
     private final JMenuItem newConvo;
     private final JMenuItem logout;
+    private static DefaultTableModel model;
     private final static ConcurrentHashMap<String, Color> colorMap = new ConcurrentHashMap<String, Color>();
     /*
     private final JScrollPane scrolly;
@@ -48,12 +49,12 @@ public class ConversationView extends JPanel{
     public ConversationView() {
         super(new GridLayout(1, 1));
         //Make color map
-        colorMap.put("red", new Color(227, 38, 54));
+        colorMap.put("red", Color.red);
         colorMap.put("orange", Color.orange);
-        colorMap.put("yellow", new Color(255, 216, 0));
-        colorMap.put("green", new Color(0, 165, 80));
-        colorMap.put("blue", new Color(96, 80, 220));
-        colorMap.put("pink", new Color(246, 83, 166));
+        colorMap.put("yellow", Color.yellow);
+        colorMap.put("green", Color.green);
+        colorMap.put("blue", Color.blue);
+        colorMap.put("pink", Color.pink);
         
         setName("Hermes Messenger");
         //setBackground(colorMap.get(User.getColor()));
@@ -97,10 +98,10 @@ public class ConversationView extends JPanel{
         for (String convoID : User.getMyConvos().keySet()) {
             JComponent panel = makePanel(User.getMyConvos().get(convoID));
             tabby.addTab(parseConvoID(convoID), panel);
-            JLabel cid = new JLabel(convoID);
-            cid.setName(convoID);
+            JLabel cid = new JLabel(parseConvoID(convoID));
+            cid.setName(parseConvoID(convoID));
             tabby.setTabComponentAt(tabby.getTabCount()-1, cid);
-            tabby.setBackgroundAt(tabby.getTabCount()-1, getColorforConvo(convoID));
+            //tabby.setBackgroundAt(tabby.getTabCount()-1, getColorforConvo(convoID));
         }
         add(tabby);
         tabby.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -119,6 +120,23 @@ public class ConversationView extends JPanel{
             }
         } return sb.toString();
     }
+    /**
+     * Unparses convoID to add own name
+     * @param convoID without yourself (as displayed in gui)
+     * @return new name
+     */
+    private static String unParseConvoID(String convoIDnoMe) {
+        ArrayList<String> uns = new ArrayList<String>();
+        for (String un:convoIDnoMe.split(" ")) {
+            uns.add(un);
+        } uns.add(User.getUsername());
+        Collections.sort(uns);
+        StringBuilder sb = new StringBuilder();
+        for (String un : uns) {
+            sb.append(un);
+            sb.append(" ");
+        } return sb.toString();
+    }
     
     private static Color getColorforConvo(String convoID) {
         String firstUN = parseConvoID(convoID).split(" ")[0];
@@ -126,15 +144,70 @@ public class ConversationView extends JPanel{
         return colorMap.get(users.get(firstUN).getColor());
     }
     
-    private JComponent makePanel(Conversation convo) {
-        JPanel panel = new JPanel(false);
-        JLabel filler = new JLabel(parseConvoID(convo.getConvoID()));
-        filler.setHorizontalAlignment(JLabel.CENTER);
-        panel.setLayout(new GridLayout(1, 1));
-        panel.add(filler);
+    private static JComponent makePanel(Conversation convo) {
+        model = new DefaultTableModel();
+        //HISTORY
+        JTable history = new JTable(model);
+        //history.setBackground(getColorforConvo(convo.getConvoID()));
+        model.addColumn("sender");
+        model.addColumn("message");
+        //String convoIDnoMe = tabby.getTabComponentAt(tabby.getSelectedIndex()).getName();
+        //fillHistory(unParseConvoID(convoIDnoMe));
+        fillHistory(convo.getConvoID());
+        
+        //MESSAGE
+        final JTextField message = new JTextField();
+        message.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                String msg = message.getText();
+                message.setText("");
+                String convoIDnoMe = tabby.getTabComponentAt(tabby.getSelectedIndex()).getName();
+                String convoID = unParseConvoID(convoIDnoMe);
+                User.addMsgToConvo(User.getMyConvos().get(convoID), msg);
+                fillHistory(unParseConvoID(convoIDnoMe));
+            }
+        });
+        
+        //SEND BUTTON
+        JButton submitButton = new JButton();
+        submitButton.setText("Send");
+        //getRootPane().setDefaultButton(submitButton);
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                String msg = message.getText();
+                message.setText("");
+                String convoIDnoMe = tabby.getTabComponentAt(tabby.getSelectedIndex()).getName();
+                String convoID = unParseConvoID(convoIDnoMe);
+                System.out.println("YOLO: " + convoID);
+                User.addMsgToConvo(User.getMyConvos().get(convoID), msg);
+                fillHistory(unParseConvoID(convoIDnoMe));
+            }
+        });
+        JPanel messagePanel = new JPanel(new BorderLayout());
+        messagePanel.add(message, BorderLayout.CENTER);
+        messagePanel.add(submitButton, BorderLayout.LINE_END);
+        
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(history, BorderLayout.CENTER);
+        panel.add(messagePanel, BorderLayout.PAGE_END);
+    
         return panel;
     }
     
+    public static void fillHistory(String convoID) {
+        //Reset the guessTable for the new game
+        int rows = model.getRowCount();
+        for (int i = rows-1; i >= 0; i--) {
+            model.removeRow(i); 
+        }
+        Conversation convo = User.getMyConvos().get(convoID);
+        for (int i = 0; i < convo.getMessages().size(); i++) {
+            Message msg = convo.getMessages().get(i);
+            model.addRow(new Object[] {msg.getSender().getUsername(), msg.getText()});
+        }
+    }
     private JComponent newConvoPanel() {
         ConcurrentHashMap<String, UserInfo> users = User.getOnlineUsers();
         final JList list = new JList(users.keySet().toArray());
@@ -161,13 +234,11 @@ public class ConversationView extends JPanel{
         return panel;
     }
     
-    private void updateTabs() {
+    public static void updateTabs() {
         for (String convoID : User.getMyConvos().keySet()) {
             boolean there = false;
-            System.out.println(tabby.getTabCount());
             for (int i = 0; i < tabby.getTabCount(); i++) {
                 Component tab = tabby.getTabComponentAt(i);
-                System.out.println("TAB: " + tab);
                 if(tab != null) {
                     if (convoID.equals(tab.getName())) {
                         there = true;
@@ -177,8 +248,8 @@ public class ConversationView extends JPanel{
             if (!there) {
                 JComponent panel = makePanel(User.getMyConvos().get(convoID));
                 tabby.addTab(parseConvoID(convoID), panel);
-                JLabel cid = new JLabel(convoID);
-                cid.setName(convoID);
+                JLabel cid = new JLabel(parseConvoID(convoID));
+                cid.setName(parseConvoID(convoID));
                 tabby.setTabComponentAt(tabby.getTabCount()-1, cid);
                 tabby.setBackgroundAt(tabby.getTabCount()-1, getColorforConvo(convoID));
             }

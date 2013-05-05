@@ -64,6 +64,6 @@ public class Conversation {
             convoID.append(userName);
             convoID.append(' ');
         }
-        return new String(convoID.substring(0,convoID.length()-1)); //cut off last space
+        return convoID.toString();
     }
 }

@@ -107,7 +107,11 @@ public class User {
                    break; 
                 }
                 else{
-                   map.put(tokens[i], onlineUsers.get(tokens[i])); 
+                   if (tokens[i].equals(username)) {
+                       map.put(tokens[i], new UserInfo(username, color)); 
+                   } else {
+                       map.put(tokens[i], onlineUsers.get(tokens[i])); 
+                   }
                 }
             }
             if(tokens[0].equals("-x")){removeMyConvo(convo);}
@@ -119,6 +123,9 @@ public class User {
             //lock.notify();
         }
         
+        else if(tokens[0].equals("-c")){
+            updateConvo(input);
+        }
         
         // Should never get here--make sure to return in each of the valid cases above.
         else{
@@ -147,9 +154,11 @@ public class User {
         for (Object un: usernames) {
             participants.put((String) un, onlineUsers.get(un));
         }
+        participants.put(username, new UserInfo(username, color));
         Conversation convo = new Conversation(participants);
         addNewMyConvo(convo);
-        return sendMessageToServer("-s " + convo.getConvoID());
+        System.out.println("CONVERSATIONS: " + myConvos);
+        return sendMessageToServer("-s " + convo.getConvoID() + "-u " + username);
     }
     
     /**
@@ -166,8 +175,44 @@ public class User {
      * @param text the Message
      */
     public static String addMsgToConvo(Conversation convo, String text){
+        System.out.println("CONVO: " + convo + "TEXT" + text);
+        convo.addMessage(new Message(new UserInfo(username, color), convo, text));
         return sendMessageToServer("-c " + convo.getConvoID() + " -u " + 
                 username + " -t " + text);
+    }
+    
+    public static void updateConvo(String input) {
+        //Parse the message data into appropriate fields
+        boolean convo_id = false;
+        StringBuilder ci = new StringBuilder();
+        boolean user = false;
+        StringBuilder un = new StringBuilder();
+        boolean text = false;
+        StringBuilder msg = new StringBuilder();
+        for (String token: input.split(" ")) {
+            if (convo_id && !token.equals("-u")) {
+                ci.append(token);
+                ci.append(" ");
+            } else if (user && !token.equals("-t")) {
+                un.append(token);
+                un.append(" ");
+            } else if (text) {
+                msg.append(token);
+                msg.append(" ");
+            }
+            if (token.equals("-c")) {
+                convo_id = true;
+            } else if (token.equals("-u")) {
+                convo_id = false;
+                user = true;
+            } else if (token.equals("-t")) {
+                user = false;
+                text = true;
+            }
+        }
+        System.out.println("HELLO: " + ci.toString());
+        Conversation convo = myConvos.get(ci.toString());
+        convo.addMessage(new Message(onlineUsers.get(un.toString()), convo, msg.toString()));
     }
     
     public static String login(){
@@ -249,6 +294,7 @@ public class User {
     }
     public static void addNewMyConvo(Conversation convo){
         myConvos.put(convo.getConvoID(), convo);
+        ConversationView.updateTabs();
     }
     public static void removeMyConvo(Conversation convo){
         for (String ID: myConvos.keySet()){
