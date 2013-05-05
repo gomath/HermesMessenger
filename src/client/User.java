@@ -13,12 +13,12 @@ import exceptions.InvalidUsernameException;
 
 public class User {
     private static String username;
-    private static Color color;
+    private static String color;
     private static Socket socket;
     private static ConcurrentHashMap<String, UserInfo> onlineUsers;
     private static Conversation activeConvo;
     private static ConcurrentHashMap<String, Conversation> myConvos;
-    
+    private static PrintWriter out;
     private static String usernameSuccess;
     
     /**
@@ -27,17 +27,23 @@ public class User {
      * @param color a Color representing the User's color preference
      * @param socket a Socket that corresponds to the User's connection
      */
-    public User(String username1, Color color1, Socket socket1){
+    public User(String username1, String color1, Socket socket1){
         username = username1;
         color = color1;
         socket = socket1;
         onlineUsers = new ConcurrentHashMap<String, UserInfo>();
         myConvos = new ConcurrentHashMap<String, Conversation>();
+        try {
+            out = new PrintWriter(socket.getOutputStream());
+            System.out.println("out");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
     public void main() throws IOException{
-        ClientThread playerThread = new ClientThread(socket);
-        new Thread(playerThread).start();
+        ClientThread clientThread = new ClientThread(socket);
+        new Thread(clientThread).start();
     }
     
     /**
@@ -51,6 +57,7 @@ public class User {
 
         try {
             for (String line =in.readLine(); line!=null; line=in.readLine()) {
+                System.out.println("line: " + line);
                 handleRequest(line);
             }
         } finally {        
@@ -112,15 +119,7 @@ public class User {
      * @param text the String to send
      */
     public static void sendMessageToServer(String text){
-        PrintWriter out = null;
-        try {
-            out = new PrintWriter(socket.getOutputStream());
-            System.out.println("out");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        out.print(text);
-        
+        out.print(text + '\n'); 
     }
     
     /**
@@ -203,7 +202,7 @@ public class User {
     public static String getUsername(){
         return username;
     }
-    public static Color getColor(){
+    public static String getColor(){
         return color;
     }
     public static Socket getSocket(){

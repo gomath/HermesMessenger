@@ -20,12 +20,13 @@ public class ChatClient {
         new Thread(guiThread).start();
     }
     
-    public static void setUser(String username, Color color, Socket socket){
+    public static void setUser(String username, String color, Socket socket){
         user = new User(username, color, socket);
     }
     
     public static void attemptLogin(String IP, String port, String username, String color) throws UnknownHostException, IOException, SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException{
         Socket socket = new Socket(IP, Integer.parseInt(port));
+        System.out.println("socket made " + socket.toString());
         int i=0;
         for(char c:username.toCharArray()){
             i++;
@@ -33,9 +34,9 @@ public class ChatClient {
                 throw new InvalidUsernameException();
             }
         }
-        java.lang.reflect.Field field = Color.class.getField("yellow");
-        Color colorObj = (Color)field.get(null);
-        setUser(username, colorObj, socket);
+        //java.lang.reflect.Field field = Color.class.getField("yellow");
+        //Color colorObj = (Color)field.get(null);
+        setUser(username, color, socket);
         user.login();
         System.out.println("starting main");
         user.main();
