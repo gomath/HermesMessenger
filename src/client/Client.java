@@ -18,7 +18,7 @@ public class Client {
     }
     
     public void setUser(String username, Color color, Socket socket){
-        this.user = new User(username, color, socket);
+        user = new User(username, color, socket);
     }
     
     public static void attemptLogin(String IP, String port, String username, String color) throws UnknownHostException, IOException, SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException{
@@ -32,7 +32,7 @@ public class Client {
         }
         java.lang.reflect.Field field = Color.class.getField("yellow");
         Color colorObj = (Color)field.get(null);
-        user = new User(username, Color.getColor(color), socket);
+        user = new User(username, colorObj, socket);
         user.login();
     }
 }

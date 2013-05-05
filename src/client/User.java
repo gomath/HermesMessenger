@@ -36,7 +36,8 @@ public class User {
     }
     
     public void main() throws IOException{
-        handleConnection(new Socket());
+        ClientThread playerThread = new ClientThread(socket);
+        new Thread(playerThread).start();
     }
     
     /**
@@ -60,6 +61,7 @@ public class User {
     
     private static void handleRequest(String input) {
         String[] tokens = input.split(" ");
+        System.out.println(input);
         if (tokens[0].equals("-f")) {
             usernameSuccess = "true";
             System.out.println("success");
@@ -110,14 +112,12 @@ public class User {
      * @param text the String to send
      */
     public static void sendMessageToServer(String text){
-        System.out.println(text);
         PrintWriter out = null;
         try {
             out = new PrintWriter(socket.getOutputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(text);
         out.print(text);
         
     }
@@ -149,18 +149,16 @@ public class User {
     }
     
     public static void login(){
-        System.out.println("hi");
-        System.out.println("-l " + username + " " + color.toString());
         sendMessageToServer("-l " + username + " " + color.toString());
-        while(true){
-            if(usernameSuccess == "true"){
-                break;
-            }
-            else if(usernameSuccess == "false"){
-                usernameSuccess = ""; //reset for next username try
-                throw new InvalidUsernameException();
-            }
-        }
+//        while(true){
+//            if(usernameSuccess == "true"){
+//                break;
+//            }
+//            else if(usernameSuccess == "false"){
+//                usernameSuccess = ""; //reset for next username try
+//                throw new InvalidUsernameException();
+//            }
+//        }
         
     }
     
