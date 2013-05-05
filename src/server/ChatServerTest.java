@@ -61,7 +61,7 @@ public class ChatServerTest {
         
     } 
     
-    @Test
+    //@Test
     /**
      * Tests that login message from client is handled appropriately
      */
@@ -74,7 +74,7 @@ public class ChatServerTest {
         socket.close();
     }
     
-    @Test
+   //@Test
     /**
      * test multiple users?
      */
@@ -99,6 +99,25 @@ public class ChatServerTest {
         }
         
     }
+    /**
+     * test socket/server communication
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public void commTest() throws IOException, InterruptedException {
+        Socket socket = new Socket("localhost", 4444);
+        System.out.println("connection success");
+        PrintWriter out = new PrintWriter(socket.getOutputStream());
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     
+        out.print("-l mathgos black");
+    
+        for (String line = in.readLine(); line!=null; line = in.readLine()) {
+                
+                System.out.println(line);
+        
+        }
+        socket.close();
+    }
 
 }

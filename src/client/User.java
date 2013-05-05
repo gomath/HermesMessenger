@@ -120,6 +120,7 @@ public class User {
      */
     public static void sendMessageToServer(String text){
         out.print(text + '\n'); 
+        out.flush();
     }
     
     /**

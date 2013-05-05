@@ -54,6 +54,7 @@ public class ChatServer {
                     for (Socket recipient: message.getRecipients()) {
                         out = new PrintWriter(recipient.getOutputStream(), true);
                         out.println(message.getText());
+                        out.flush();
                     }
                 }
             }
