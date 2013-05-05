@@ -9,6 +9,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowEvent;
 import java.net.UnknownHostException;
 
 import javax.swing.GroupLayout;
@@ -136,7 +137,7 @@ public class LoginView extends JFrame{
             public void actionPerformed(ActionEvent arg0) {
                 try {
                     ChatClient.attemptLogin(ipAddress.getText(), portNumber.getText(), username.getText(), (String) colorDropDown.getSelectedItem());
-                    UserGUI.openConversationView();
+                    exit();
                 } catch (NumberFormatException e1) {
                     //INVALID PORT NUMBER
                     JOptionPane.showMessageDialog(getContentPane(), "Invalid port number");
@@ -184,6 +185,10 @@ public class LoginView extends JFrame{
                     .addComponent(submitButton)));
         getRootPane().setDefaultButton(submitButton);
         pack();
+    }
+    public void exit() {
+        UserGUI.openConversationView();
+        System.out.println("YOLO");
     }
     
     public static void main(final String[] args) {
