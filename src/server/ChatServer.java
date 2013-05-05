@@ -107,7 +107,9 @@ public class ChatServer {
         ArrayList<ServerMessage> messageList = new ArrayList<ServerMessage>();
         if (infoMap.containsKey(username)) {
             //Username is already used, return INVALID_USER message
-            messageList.add(new ServerMessage(justMe(username), "-i " + username));
+            ArrayList<Socket> me = new ArrayList<Socket>();
+            me.add(socket);
+            messageList.add(new ServerMessage(me, "-i " + username));
             return messageList;
         } else {
             //Make new UserInfo
