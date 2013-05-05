@@ -47,7 +47,7 @@ public class ChatServer {
         PrintWriter out = null;
         try {
             for (String line = in.readLine(); line!=null; line = in.readLine()) {
-                ServerMessage outMessage = handleRequest(line, socket);
+                ServerMessage outMessage = handleClientRequest(line, socket);
                 if (outMessage != null) {
                     for (Socket recipient: outMessage.getRecipients()) {
                         out = new PrintWriter(recipient.getOutputStream(), true);
@@ -72,7 +72,7 @@ public class ChatServer {
      * @return
      * @throws IOException
      */
-    private static ServerMessage handleRequest(String input, Socket socket) throws IOException {
+    private static ServerMessage handleClientRequest(String input, Socket socket) throws IOException {
         String [] tokens = input.split(" ");
         String flag = tokens[0];
         
