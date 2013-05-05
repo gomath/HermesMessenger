@@ -15,7 +15,7 @@ public class User {
     private final Socket socket;
     private static ConcurrentHashMap<String, UserInfo> onlineUsers;
     private Conversation activeConvo;
-    private ConcurrentHashMap<String, Conversation> myConvos;
+    private static ConcurrentHashMap<String, Conversation> myConvos;
     
     /**
      * Create a User, initialize its instance variables
@@ -71,14 +71,23 @@ public class User {
         else if (tokens[0].equals("-q")){
             removeOnlineUser(tokens[1]);
         }
-        else if (tokens[0].equals("-s")){
+        else if (tokens[0].equals("-s") || tokens[0].equals("-x")){
             String senderName = null;
-            StringBuilder convoID = new StringBuilder();                   
+            Conversation convo = null;
+            //StringBuilder convoID = new StringBuilder();   
+            ConcurrentHashMap<String, UserInfo> map = new ConcurrentHashMap<String, UserInfo>();
             for(int i=1; i<tokens.length; i++){
                 if (tokens[i].equals("-u")){
-                   // Conversation convo = new Conversation(new String(convoID), )
+                   convo = new Conversation(map);
+                   senderName = tokens[i+1];
+                   break; 
+                }
+                else{
+                   map.put(tokens[i], onlineUsers.get(tokens[i])); 
                 }
             }
+            if(tokens[0].equals("-x")){removeMyConvo(convo);}
+            else{addNewMyConvo(convo);}
         }
         
         // Should never get here--make sure to return in each of the valid cases above.
@@ -174,13 +183,20 @@ public class User {
         return this.socket;
     }
     public ConcurrentHashMap<String, UserInfo> getOnlineUsers(){
-        return this.onlineUsers;
+        return onlineUsers;
     }
     public ConcurrentHashMap<String, Conversation> getMyConvos(){
-        return this.myConvos;
+        return myConvos;
     }
-    public void addNewMyConvo(Conversation convo){
-        this.myConvos.put(convo.getConvoID(), convo);
+    public static void addNewMyConvo(Conversation convo){
+        myConvos.put(convo.getConvoID(), convo);
+    }
+    public static void removeMyConvo(Conversation convo){
+        for (String ID: myConvos.keySet()){
+            if (ID.equals(convo.getConvoID())){
+                myConvos.remove(ID);
+            }
+        }
     }
     
     
