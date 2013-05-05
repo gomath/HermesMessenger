@@ -74,7 +74,7 @@ public class User {
             System.out.println("success");
             ConcurrentHashMap<String, UserInfo> map = new ConcurrentHashMap<String, UserInfo>();
             for(int i=1; i<tokens.length; i++){
-                if(i%2==0){
+                if(i%2==1){
                     map.put(tokens[i], new UserInfo(tokens[i],tokens[i+1]));
                 }
             }   
