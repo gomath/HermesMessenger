@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.net.UnknownHostException;
 
 import javax.swing.GroupLayout;
@@ -23,18 +25,6 @@ public class LoginView extends JFrame{
     private final JTextField username;
     private final JComboBox colorDropDown;
     private final JButton submitButton;
-    /*
-    // remember to use these objects in your GUI:
-    private final JButton connectButton;
-    private final JTextField connection;
-    private final JLabel connectionInfo;
-    public final JTextField newMessage;
-    private final JTable messages;
-    private final JLabel messageLabel;
-    private String hostname;
-    private String port;
-    private DefaultTableModel model;
-    */
     
     public LoginView() {
         setPreferredSize(new Dimension(600,400));
@@ -44,9 +34,7 @@ public class LoginView extends JFrame{
         ipAddress.setText("IP Address");
         ipAddress.addFocusListener(new FocusListener() {
             @Override
-            public void focusGained(FocusEvent arg0) {
-                ipAddress.setText("");
-            }
+            public void focusGained(FocusEvent arg0) {}
             @Override
             public void focusLost(FocusEvent arg0) {
                 if (ipAddress.getText().equals("")) {
@@ -54,15 +42,25 @@ public class LoginView extends JFrame{
                 }
             }
         });
+        ipAddress.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (ipAddress.getText().equals("IP Address")) {
+                    ipAddress.setText("");                
+                }
+            }
+            @Override
+            public void keyReleased(KeyEvent e) {}
+            @Override
+            public void keyTyped(KeyEvent e) {}
+        });
         
         //PORT NUMBER
         portNumber = new JTextField();
         portNumber.setText("Port");
         portNumber.addFocusListener(new FocusListener() {
             @Override
-            public void focusGained(FocusEvent arg0) {
-                portNumber.setText("");
-            }
+            public void focusGained(FocusEvent arg0) {}
             @Override
             public void focusLost(FocusEvent arg0) {
                 if (portNumber.getText().equals("")) {
@@ -70,16 +68,25 @@ public class LoginView extends JFrame{
                 }
             }
         });
-        
+        portNumber.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (portNumber.getText().equals("Port")) {
+                    portNumber.setText("");                
+                }
+            }
+            @Override
+            public void keyReleased(KeyEvent e) {}
+            @Override
+            public void keyTyped(KeyEvent e) {}
+        });
         
         //USERNAME
         username = new JTextField();
         username.setText("Username");
         username.addFocusListener(new FocusListener() {
             @Override
-            public void focusGained(FocusEvent arg0) {
-                username.setText("");
-            }
+            public void focusGained(FocusEvent arg0) {}
             @Override
             public void focusLost(FocusEvent arg0) {
                 if (username.getText().equals("")) {
@@ -87,7 +94,18 @@ public class LoginView extends JFrame{
                 }
             }
         });
-        
+        username.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (username.getText().equals("Username")) {
+                    username.setText("");
+                }
+            }
+            @Override
+            public void keyReleased(KeyEvent e) {}
+            @Override
+            public void keyTyped(KeyEvent e) {}
+        });
         //COLOR PICKER
         String[] colorStrings = {"red", "orange", "yellow", "green", "blue", "pink"};
         colorDropDown = new JComboBox(colorStrings);
