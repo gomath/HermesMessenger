@@ -12,11 +12,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import exceptions.InvalidUsernameException;
 
 public class User {
-    private final String username;
-    private final Color color;
-    private final Socket socket;
+    private static String username;
+    private static Color color;
+    private static Socket socket;
     private static ConcurrentHashMap<String, UserInfo> onlineUsers;
-    private Conversation activeConvo;
+    private static Conversation activeConvo;
     private static ConcurrentHashMap<String, Conversation> myConvos;
     
     private static String usernameSuccess;
@@ -27,11 +27,10 @@ public class User {
      * @param color a Color representing the User's color preference
      * @param socket a Socket that corresponds to the User's connection
      */
-    public User(String username, Color color, Socket socket){
-        this.username = username;
-        usernameSuccess = "";
-        this.color = color;
-        this.socket = socket;
+    public User(String username1, Color color1, Socket socket1){
+        username = username1;
+        color = color1;
+        socket = socket1;
         onlineUsers = new ConcurrentHashMap<String, UserInfo>();
         myConvos = new ConcurrentHashMap<String, Conversation>();
     }
@@ -63,6 +62,7 @@ public class User {
         String[] tokens = input.split(" ");
         if (tokens[0].equals("-f")) {
             usernameSuccess = "true";
+            System.out.println("success");
             ConcurrentHashMap<String, UserInfo> map = new ConcurrentHashMap<String, UserInfo>();
             for(int i=1; i<tokens.length; i++){
                 if(i%2==0){
@@ -109,13 +109,15 @@ public class User {
      * Actually send a String to the server
      * @param text the String to send
      */
-    public void sendMessageToServer(String text){
+    public static void sendMessageToServer(String text){
+        System.out.println(text);
         PrintWriter out = null;
         try {
             out = new PrintWriter(socket.getOutputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println(text);
         out.print(text);
         
     }
@@ -124,7 +126,7 @@ public class User {
      * Tell the server to start a new conversation
      * @param convo the Conversation to start
      */
-    public void startConvo(Conversation convo){
+    public static void startConvo(Conversation convo){
         sendMessageToServer("-s " + convo.getConvoID());
     }
     
@@ -132,7 +134,7 @@ public class User {
      * Tell the server to end a conversation
      * @param convo the Conversation to end
      */
-    public void closeConvo(Conversation convo){
+    public static void closeConvo(Conversation convo){
         sendMessageToServer("-x " + convo.getConvoID());
     }
     
@@ -141,13 +143,15 @@ public class User {
      * @param convo the Conversation to add the message to
      * @param text the Message
      */
-    public void addMsgToConvo(Conversation convo, String text){
+    public static void addMsgToConvo(Conversation convo, String text){
         sendMessageToServer("-c " + convo.getConvoID() + " -u " + 
-                this.username + " -t " + text);
+                username + " -t " + text);
     }
     
-    public void login(){
-        sendMessageToServer("-l " + this.username + " " + this.color.toString());
+    public static void login(){
+        System.out.println("hi");
+        System.out.println("-l " + username + " " + color.toString());
+        sendMessageToServer("-l " + username + " " + color.toString());
         while(true){
             if(usernameSuccess == "true"){
                 break;
@@ -163,16 +167,16 @@ public class User {
     /**
      * Tell the server to disconnect the user
      */
-    public void quit(){
-        sendMessageToServer("-q " + this.username);
+    public static void quit(){
+        sendMessageToServer("-q " + username);
     }
     
     /**
      * Setter methods for various private instance variables.
      * @param the object to set the variable to
      */
-    public void setActiveConvo(Conversation convo){
-        this.activeConvo = convo;
+    public static void setActiveConvo(Conversation convo){
+        activeConvo = convo;
     }
     
     /**
@@ -197,19 +201,19 @@ public class User {
      * Getter methods for various private instance variables.
      * @return the instance variable.
      */
-    public String getUsername(){
-        return this.username;
+    public static String getUsername(){
+        return username;
     }
-    public Color getColor(){
-        return this.color;
+    public static Color getColor(){
+        return color;
     }
-    public Socket getSocket(){
-        return this.socket;
+    public static Socket getSocket(){
+        return socket;
     }
-    public ConcurrentHashMap<String, UserInfo> getOnlineUsers(){
+    public static ConcurrentHashMap<String, UserInfo> getOnlineUsers(){
         return onlineUsers;
     }
-    public ConcurrentHashMap<String, Conversation> getMyConvos(){
+    public static ConcurrentHashMap<String, Conversation> getMyConvos(){
         return myConvos;
     }
     public static void addNewMyConvo(Conversation convo){
