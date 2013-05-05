@@ -136,6 +136,7 @@ public class LoginView extends JFrame{
             public void actionPerformed(ActionEvent arg0) {
                 try {
                     Client.attemptLogin(ipAddress.getText(), portNumber.getText(), username.getText(), (String) colorDropDown.getSelectedItem());
+                    UserGUI.openConversationView();
                 } catch (NumberFormatException e1) {
                     //INVALID PORT NUMBER
                     JOptionPane.showMessageDialog(getContentPane(), "Invalid port number");
@@ -152,8 +153,6 @@ public class LoginView extends JFrame{
                     ipAddress.setText("IP Address");
                     portNumber.setText("Port");
                     username.setText("Username");
-                } finally {
-
                 }
             }
         });
