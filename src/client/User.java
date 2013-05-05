@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
+import exceptions.InvalidUsernameException;
+
 public class User {
     private final String username;
     private final Color color;
@@ -16,6 +18,8 @@ public class User {
     private static ConcurrentHashMap<String, UserInfo> onlineUsers;
     private Conversation activeConvo;
     private static ConcurrentHashMap<String, Conversation> myConvos;
+    
+    private static String usernameSuccess;
     
     /**
      * Create a User, initialize its instance variables
@@ -25,10 +29,11 @@ public class User {
      */
     public User(String username, Color color, Socket socket){
         this.username = username;
+        usernameSuccess = "";
         this.color = color;
         this.socket = socket;
-        this.onlineUsers = new ConcurrentHashMap<String, UserInfo>();
-        this.myConvos = new ConcurrentHashMap<String, Conversation>();
+        onlineUsers = new ConcurrentHashMap<String, UserInfo>();
+        myConvos = new ConcurrentHashMap<String, Conversation>();
     }
     
     public void main() throws IOException{
@@ -57,6 +62,7 @@ public class User {
     private static void handleRequest(String input) {
         String[] tokens = input.split(" ");
         if (tokens[0].equals("-f")) {
+            usernameSuccess = "true";
             ConcurrentHashMap<String, UserInfo> map = new ConcurrentHashMap<String, UserInfo>();
             for(int i=1; i<tokens.length; i++){
                 if(i%2==0){
@@ -88,6 +94,10 @@ public class User {
             }
             if(tokens[0].equals("-x")){removeMyConvo(convo);}
             else{addNewMyConvo(convo);}
+        }
+        
+        else if(tokens[0].equals("-i")){
+            usernameSuccess = "false";
         }
         
         // Should never get here--make sure to return in each of the valid cases above.
@@ -138,6 +148,16 @@ public class User {
     
     public void login(){
         sendMessageToServer("-l " + this.username + " " + this.color.toString());
+        while(true){
+            if(usernameSuccess == "true"){
+                break;
+            }
+            else if(usernameSuccess == "false"){
+                usernameSuccess = ""; //reset for next username try
+                throw new InvalidUsernameException();
+            }
+        }
+        
     }
     
     /**
