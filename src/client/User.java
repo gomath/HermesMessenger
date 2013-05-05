@@ -7,6 +7,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
+import exceptions.InvalidUsernameException;
+
 public class User {
     private static String username;
     private static String color;
@@ -16,6 +18,8 @@ public class User {
     private static ConcurrentHashMap<String, Conversation> myConvos;
     private static PrintWriter out;
     private static String usernameSuccess;
+    
+    private static Object lock; //used to wait for login confirmation
     
     /**
      * Create a User, initialize its instance variables
@@ -34,6 +38,7 @@ public class User {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        lock = new Object();
     }
     
     public void main() throws IOException{
@@ -68,6 +73,7 @@ public class User {
         }
         else if (tokens[0].equals("-f")) {
             usernameSuccess = "true";
+            lock.notify();
             ConcurrentHashMap<String, UserInfo> map = new ConcurrentHashMap<String, UserInfo>();
             for(int i=1; i<tokens.length; i++){
                 if(i%2==1){
@@ -103,6 +109,7 @@ public class User {
         
         else if(tokens[0].equals("-i")){
             usernameSuccess = "false";
+            lock.notify();
         }
         
         
@@ -117,26 +124,27 @@ public class User {
      * Actually send a String to the server
      * @param text the String to send
      */
-    public static void sendMessageToServer(String text){
+    public static String sendMessageToServer(String text){
         System.out.println("CLIENT OUTBOX: " + text);
         out.print(text + '\n'); 
         out.flush();
+        return text;
     }
     
     /**
      * Tell the server to start a new conversation
      * @param convo the Conversation to start
      */
-    public static void startConvo(Conversation convo){
-        sendMessageToServer("-s " + convo.getConvoID());
+    public static String startConvo(Conversation convo){
+        return sendMessageToServer("-s " + convo.getConvoID());
     }
     
     /**
      * Tell the server to end a conversation
      * @param convo the Conversation to end
      */
-    public static void closeConvo(Conversation convo){
-        sendMessageToServer("-x " + convo.getConvoID());
+    public static String closeConvo(Conversation convo){
+        return sendMessageToServer("-x " + convo.getConvoID());
     }
     
     /**
@@ -144,22 +152,29 @@ public class User {
      * @param convo the Conversation to add the message to
      * @param text the Message
      */
-    public static void addMsgToConvo(Conversation convo, String text){
-        sendMessageToServer("-c " + convo.getConvoID() + " -u " + 
+    public static String addMsgToConvo(Conversation convo, String text){
+        return sendMessageToServer("-c " + convo.getConvoID() + " -u " + 
                 username + " -t " + text);
     }
     
-    public static void login(){
+    public static String login(){
         sendMessageToServer("-l " + username + " " + color.toString());
-//        while(true){
-//            if(usernameSuccess == "true"){
-//                break;
-//            }
-//            else if(usernameSuccess == "false"){
-//                usernameSuccess = ""; //reset for next username try
-//                throw new InvalidUsernameException();
-//            }
-//        }
+        synchronized(lock){
+            while(true){
+                try {
+                    lock.wait();
+                    if(usernameSuccess.equals("true")){
+                        return "-l " + username + " " + color.toString();
+                    }
+                    else{
+                        throw new InvalidUsernameException();
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        
         
     }
     
