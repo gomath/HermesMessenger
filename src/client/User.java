@@ -1,15 +1,11 @@
 package client;
 
-import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
-
-import exceptions.InvalidUsernameException;
 
 public class User {
     private static String username;
@@ -35,7 +31,6 @@ public class User {
         myConvos = new ConcurrentHashMap<String, Conversation>();
         try {
             out = new PrintWriter(socket.getOutputStream());
-            System.out.println("out");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -57,7 +52,7 @@ public class User {
 
         try {
             for (String line =in.readLine(); line!=null; line=in.readLine()) {
-                System.out.println("line: " + line);
+                System.out.println("CLIENT INBOX: " + line);
                 handleRequest(line);
             }
         } finally {        
@@ -68,13 +63,11 @@ public class User {
     
     private static void handleRequest(String input) {
         String[] tokens = input.split(" ");
-        System.out.println("handling request: " + input);
         if (input.length()==0){
             ;
         }
         else if (tokens[0].equals("-f")) {
             usernameSuccess = "true";
-            System.out.println("success");
             ConcurrentHashMap<String, UserInfo> map = new ConcurrentHashMap<String, UserInfo>();
             for(int i=1; i<tokens.length; i++){
                 if(i%2==1){
@@ -125,6 +118,7 @@ public class User {
      * @param text the String to send
      */
     public static void sendMessageToServer(String text){
+        System.out.println("CLIENT OUTBOX: " + text);
         out.print(text + '\n'); 
         out.flush();
     }

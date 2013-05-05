@@ -1,11 +1,8 @@
 package client;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.text.Format.Field;
-import java.util.concurrent.ConcurrentHashMap;
 
 import exceptions.InvalidUsernameException;
 

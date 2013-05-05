@@ -1,6 +1,5 @@
 package client;
 
-import java.awt.Color;
 import java.net.Socket;
 
 /**

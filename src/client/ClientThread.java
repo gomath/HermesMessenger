@@ -1,7 +1,6 @@
 package client;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.Socket;
 
 public class ClientThread implements Runnable {
@@ -12,6 +11,7 @@ public class ClientThread implements Runnable {
     }
     
     public void run(){
+        System.out.println("Created new ClientThread");
         try {
             User.handleConnection(socket);
         } catch (Exception e) {

@@ -47,10 +47,10 @@ public class ChatServer {
         PrintWriter out = null;
         try {
             for (String line = in.readLine(); line!=null; line = in.readLine()) {
-                System.out.println("LINE: " + line);
+                System.out.println("SERVER INBOX: " + line);
                 ArrayList<ServerMessage> outMessages = handleClientRequest(line, socket);
                 for(ServerMessage message: outMessages) {
-                    System.out.println("OUTBOX: " + message);
+                    System.out.println("SERVER OUTBOX: " + message);
                     for (Socket recipient: message.getRecipients()) {
                         out = new PrintWriter(recipient.getOutputStream(), true);
                         out.println(message.getText());
@@ -76,7 +76,6 @@ public class ChatServer {
     public static ArrayList<ServerMessage> handleClientRequest(String input, Socket socket) throws IOException {
         String [] tokens = input.split(" ");
         String flag = tokens[0];
-        System.out.println(input);
         if(flag.equals("-l")) {
             return addUser(tokens[1], tokens[2], socket);
         } else if(flag.equals("-q")) {
@@ -88,7 +87,7 @@ public class ChatServer {
         } else if(flag.equals("-x")) {
             return closeConvo(input);
         } else {
-            System.out.println("THE THING ISN'T A REAL FLAG, FOOL!");
+            System.out.println("No flag recognized incoming message to server!");
         }
         
         return null;

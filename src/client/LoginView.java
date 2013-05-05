@@ -9,7 +9,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.WindowEvent;
 import java.net.UnknownHostException;
 
 import javax.swing.GroupLayout;
@@ -188,7 +187,6 @@ public class LoginView extends JFrame{
     }
     public void exit() {
         UserGUI.openConversationView();
-        System.out.println("YOLO");
     }
     
     public static void main(final String[] args) {
