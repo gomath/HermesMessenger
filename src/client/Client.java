@@ -10,7 +10,7 @@ import exceptions.InvalidUsernameException;
 
 public class Client {
     private final UserGUI gui;
-    private User user;
+    private static User user;
     
     public Client(){
         this.gui = new UserGUI();
@@ -20,12 +20,14 @@ public class Client {
         this.user = new User(username, color, socket);
     }
     
-    public void attemptLogin(String IP, String port, String username, String color) throws NumberFormatException, UnknownHostException, IOException{
+    public static void attemptLogin(String IP, String port, String username, String color) throws NumberFormatException, UnknownHostException, IOException{
         Socket socket = new Socket(IP, Integer.parseInt(port));
         for(char c:username.toCharArray()){
             if(!Character.isLetter(c)){
                 throw new InvalidUsernameException();
             }
         }
+        user = new User(username, Color.getColor(color), socket);
+        user.login();
     }
 }

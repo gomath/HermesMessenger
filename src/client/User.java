@@ -136,6 +136,10 @@ public class User {
                 this.username + " -t " + text);
     }
     
+    public void login(){
+        sendMessageToServer("-l " + this.username + " " + this.color.toString());
+    }
+    
     /**
      * Tell the server to disconnect the user
      */
