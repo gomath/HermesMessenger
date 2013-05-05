@@ -47,8 +47,10 @@ public class ChatServer {
         PrintWriter out = null;
         try {
             for (String line = in.readLine(); line!=null; line = in.readLine()) {
+                System.out.println("LINE: " + line);
                 ArrayList<ServerMessage> outMessages = handleClientRequest(line, socket);
                 for(ServerMessage message: outMessages) {
+                    System.out.println("OUTBOX: " + message);
                     for (Socket recipient: message.getRecipients()) {
                         out = new PrintWriter(recipient.getOutputStream(), true);
                         out.println(message.getText());
@@ -289,7 +291,6 @@ public class ChatServer {
             if(args.length == 2 && args[0].equals("-p") && Character.isDigit(args[1].charAt(1)))
             runChatServer(Integer.parseInt(args[1]));
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -298,5 +299,8 @@ public class ChatServer {
         ChatServer server = new ChatServer(port);
         server.serve();
     }
-
+    
+    public static ConcurrentHashMap<String, UserInfo> getInfoMap() {
+        return infoMap;
+    }
 }
