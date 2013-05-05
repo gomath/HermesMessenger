@@ -14,6 +14,7 @@ public class ChatServerThread extends Thread {
 
     @Override
     public void run() {
+        System.out.println("running");
         try {
             ChatServer.handleConnection(socket);
         } catch (SocketException e) {

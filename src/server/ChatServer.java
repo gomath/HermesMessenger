@@ -73,7 +73,7 @@ public class ChatServer {
     public static ArrayList<ServerMessage> handleClientRequest(String input, Socket socket) throws IOException {
         String [] tokens = input.split(" ");
         String flag = tokens[0];
-        
+        System.out.println(input);
         if(flag.equals("-l")) {
             return addUser(tokens[1], tokens[2], socket);
         } else if(flag.equals("-q")) {

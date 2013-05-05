@@ -61,7 +61,7 @@ public class User {
     
     private static void handleRequest(String input) {
         String[] tokens = input.split(" ");
-        System.out.println(input);
+        System.out.println("handling request: " + input);
         if (tokens[0].equals("-f")) {
             usernameSuccess = "true";
             System.out.println("success");
@@ -115,6 +115,7 @@ public class User {
         PrintWriter out = null;
         try {
             out = new PrintWriter(socket.getOutputStream());
+            System.out.println("out");
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -135,7 +135,7 @@ public class LoginView extends JFrame{
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 try {
-                    Client.attemptLogin(ipAddress.getText(), portNumber.getText(), username.getText(), (String) colorDropDown.getSelectedItem());
+                    ChatClient.attemptLogin(ipAddress.getText(), portNumber.getText(), username.getText(), (String) colorDropDown.getSelectedItem());
                     UserGUI.openConversationView();
                 } catch (NumberFormatException e1) {
                     //INVALID PORT NUMBER

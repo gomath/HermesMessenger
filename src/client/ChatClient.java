@@ -9,15 +9,18 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import exceptions.InvalidUsernameException;
 
-public class Client {
+public class ChatClient {
     private final UserGUI gui;
     private static User user;
     
-    public Client(){
+    public ChatClient(){
         this.gui = new UserGUI();
+        GUIThread guiThread = new GUIThread();
+        System.out.println("starting");
+        new Thread(guiThread).start();
     }
     
-    public void setUser(String username, Color color, Socket socket){
+    public static void setUser(String username, Color color, Socket socket){
         user = new User(username, color, socket);
     }
     
@@ -32,7 +35,9 @@ public class Client {
         }
         java.lang.reflect.Field field = Color.class.getField("yellow");
         Color colorObj = (Color)field.get(null);
-        user = new User(username, colorObj, socket);
+        setUser(username, colorObj, socket);
         user.login();
+        System.out.println("starting main");
+        user.main();
     }
 }
