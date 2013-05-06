@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -34,9 +35,10 @@ public class ConversationView extends JPanel{
     private static JTabbedPane tabby;
     private static JMenuBar menuBar;
     private final JMenu file;
-    private final JMenuItem newConvo;
     private final JMenuItem logout;
+    private static DefaultListModel listModel;
     private static DefaultTableModel model;
+    private static JList list;
     private final static ConcurrentHashMap<String, Color> colorMap = new ConcurrentHashMap<String, Color>();
     /*
     private final JScrollPane scrolly;
@@ -64,22 +66,6 @@ public class ConversationView extends JPanel{
         menuBar = new JMenuBar();
         file = new JMenu("File");
         menuBar.add(file);
-        newConvo = new JMenuItem("New Conversation");
-        newConvo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ConcurrentHashMap<String, UserInfo> users = User.getOnlineUsers();
-                JList list = new JList(users.keySet().toArray());
-                list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-                list.setLayoutOrientation(JList.VERTICAL);
-                list.setVisibleRowCount(10);
-                JScrollPane listScroller = new JScrollPane(list);
-                JOptionPane.showInputDialog(listScroller, "Select User(s)", "New Conversation");
-                add(listScroller);
-                //JOptionPane.showMessageDialog(, "Select User(s)");                
-            } 
-        });
-        file.add(newConvo);
         
         logout = new JMenuItem("Logout");
         logout.addActionListener(new ActionListener() {
@@ -92,6 +78,8 @@ public class ConversationView extends JPanel{
         
         //TABBY
         tabby = new JTabbedPane();
+        
+        //CONVO PANEL        
         JComponent newPanel = newConvoPanel();
         tabby.addTab("New", newPanel);
         
@@ -180,7 +168,6 @@ public class ConversationView extends JPanel{
                 message.setText("");
                 String convoIDnoMe = tabby.getTabComponentAt(tabby.getSelectedIndex()).getName();
                 String convoID = unParseConvoID(convoIDnoMe);
-                System.out.println("YOLO: " + convoID);
                 User.addMsgToConvo(User.getMyConvos().get(convoID), msg);
                 fillHistory(unParseConvoID(convoIDnoMe));
             }
@@ -208,11 +195,14 @@ public class ConversationView extends JPanel{
             model.addRow(new Object[] {msg.getSender().getUsername(), msg.getText()});
         }
     }
+    
     private JComponent newConvoPanel() {
-        ConcurrentHashMap<String, UserInfo> users = User.getOnlineUsers();
-        final JList list = new JList(users.keySet().toArray());
+        listModel = new DefaultListModel();
+        list = new JList(listModel);
         list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         list.setLayoutOrientation(JList.VERTICAL_WRAP);
+        updateOnlineUsers();
+        
         //list.setVisibleRowCount(1);
         JScrollPane listScroller = new JScrollPane(list);        
         
@@ -223,7 +213,6 @@ public class ConversationView extends JPanel{
             public void actionPerformed(ActionEvent arg0) {
                 Object[] usernames = list.getSelectedValues();
                 User.startConvo(usernames);
-                updateTabs();
             }
         });
         
@@ -232,6 +221,17 @@ public class ConversationView extends JPanel{
         panel.add(submitButton, BorderLayout.PAGE_END);
     
         return panel;
+    }
+    
+    public static void updateOnlineUsers() {
+        int rows = listModel.getSize();
+        for (int i = rows-1; i >= 0; i--) {
+            listModel.remove(i); 
+        }
+        ConcurrentHashMap<String, UserInfo> users = User.getOnlineUsers();
+        for (String un: users.keySet()) {
+            listModel.addElement(un);
+        }
     }
     
     public static void updateTabs() {
@@ -246,6 +246,7 @@ public class ConversationView extends JPanel{
                 }
             }
             if (!there) {
+                System.out.println("ADDING TAB: " + convoID);
                 JComponent panel = makePanel(User.getMyConvos().get(convoID));
                 tabby.addTab(parseConvoID(convoID), panel);
                 JLabel cid = new JLabel(parseConvoID(convoID));

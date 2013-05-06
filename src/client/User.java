@@ -55,7 +55,6 @@ public class User {
      * @throws IOException if connection has an error or terminates unexpectedly
      */
     public static void handleConnection(Socket socket) throws IOException {
-        System.out.println("client handling connection");
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
@@ -72,13 +71,10 @@ public class User {
     
     static void handleRequest(String input) {
         String[] tokens = input.split(" ");
-        System.out.println("Client handling request: " + input);
         if (input.length()==0){
             ;
         }
         else if (tokens[0].equals("-f")) {
-            System.out.println(Thread.currentThread().getId());
-            System.out.println("did you get it? -f");
             usernameSuccess = "true";
             //lock.notify();
             ConcurrentHashMap<String, UserInfo> map = new ConcurrentHashMap<String, UserInfo>();
@@ -91,6 +87,7 @@ public class User {
         }
         else if (tokens[0].equals("-o")){
             addOnlineUser(new UserInfo(tokens[1],tokens[2]));
+            ConversationView.updateOnlineUsers();
         }
         else if (tokens[0].equals("-q")){
             removeOnlineUser(tokens[1]);
@@ -157,7 +154,6 @@ public class User {
         participants.put(username, new UserInfo(username, color));
         Conversation convo = new Conversation(participants);
         addNewMyConvo(convo);
-        System.out.println("CONVERSATIONS: " + myConvos);
         return sendMessageToServer("-s " + convo.getConvoID() + "-u " + username);
     }
     
@@ -175,9 +171,9 @@ public class User {
      * @param text the Message
      */
     public static String addMsgToConvo(Conversation convo, String text){
-        System.out.println("CONVO: " + convo + "TEXT" + text);
+        System.out.println("ADDING MESSAGE TO CONVO: " + convo + "TEXT" + text);
         convo.addMessage(new Message(new UserInfo(username, color), convo, text));
-        return sendMessageToServer("-c " + convo.getConvoID() + " -u " + 
+        return sendMessageToServer("-c " + convo.getConvoID() + "-u " + 
                 username + " -t " + text);
     }
     
@@ -195,7 +191,6 @@ public class User {
                 ci.append(" ");
             } else if (user && !token.equals("-t")) {
                 un.append(token);
-                un.append(" ");
             } else if (text) {
                 msg.append(token);
                 msg.append(" ");
@@ -210,14 +205,15 @@ public class User {
                 text = true;
             }
         }
-        System.out.println("HELLO: " + ci.toString());
         Conversation convo = myConvos.get(ci.toString());
-        convo.addMessage(new Message(onlineUsers.get(un.toString()), convo, msg.toString()));
+        if (!un.toString().equals(username)) {
+            convo.addMessage(new Message(onlineUsers.get(un.toString()), convo, msg.toString()));
+        } else {
+            convo.addMessage(new Message(new UserInfo(username, color), convo, msg.toString()));
+        } ConversationView.fillHistory(convo.getConvoID());
     }
     
     public static String login(){
-        System.out.println("login");
-        System.out.println("login: " + Thread.currentThread().getId());
         sendMessageToServer("-l " + username + " " + color.toString());
         return "";
 //        synchronized(lock){

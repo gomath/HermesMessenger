@@ -127,8 +127,6 @@ public class ChatServer {
             } 
             messageList.add(new ServerMessage(justMe(username), sb.toString()));
             String notifyOthers = "-o "+username+" "+color;
-            ArrayList<Socket> socketList = everyoneButMe(username);
-            socketList.remove(socket);
             messageList.add(new ServerMessage(everyoneButMe(username), notifyOthers));
         }
         return messageList;
@@ -166,7 +164,6 @@ public class ChatServer {
                 ci.append(" ");
             } else if (user && !token.equals("-t")) {
                 un.append(token);
-                un.append(" ");
             } else if (text) {
                 msg.append(token);
                 msg.append(" ");
@@ -202,7 +199,6 @@ public class ChatServer {
                 ci.append(" ");
             } else if (user) {
                 un.append(token);
-                un.append(" ");
             } if (token.equals("-s")) {
                 convo_id = true;
             } else if (token.equals("-u")) {
@@ -230,7 +226,6 @@ public class ChatServer {
                 ci.append(" ");
             } else if (user) {
                 un.append(token);
-                un.append(" ");
             } if (token.equals("-x")) {
                 convo_id = true;
             } else if (token.equals("-u")) {
@@ -278,7 +273,6 @@ public class ChatServer {
         ArrayList<Socket> recipients = new ArrayList<Socket>();
         for (String un: convoID.split(" ")) {
             if (!un.equals(username)) {
-                System.out.println("INFOMAP ERYONE IN CONVO BUT ME: " + un + infoMap.keySet() + infoMap.get(un));
                 recipients.add(infoMap.get(un).getSocket());
             }
         }
