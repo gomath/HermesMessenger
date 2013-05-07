@@ -174,14 +174,17 @@ public class ConversationView extends JPanel{
                 }
             }
         });
+        JScrollPane historyScroll = new JScrollPane(history); 
+        
         JPanel messagePanel = new JPanel(new BorderLayout());
         messagePanel.add(message, BorderLayout.CENTER);
         messagePanel.add(submitButton, BorderLayout.LINE_END);
         
         JPanel panel = new JPanel(new BorderLayout());
-        panel.add(history, BorderLayout.CENTER);
+        panel.add(historyScroll, BorderLayout.CENTER);
         panel.add(messagePanel, BorderLayout.PAGE_END);
     
+
         return panel;
     }
     
