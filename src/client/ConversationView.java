@@ -37,7 +37,8 @@ public class ConversationView extends JPanel{
     private final JMenu file;
     private final JMenuItem logout;
     private static DefaultListModel listModel;
-    private static DefaultTableModel model;
+    private static DefaultListModel historyModel;
+    private static JList history;
     private static JList list;
     private final static ConcurrentHashMap<String, Color> colorMap = new ConcurrentHashMap<String, Color>();
     /*
@@ -133,14 +134,11 @@ public class ConversationView extends JPanel{
     }
     
     private static JComponent makePanel(Conversation convo) {
-        model = new DefaultTableModel();
+        historyModel = new DefaultListModel();
         //HISTORY
-        JTable history = new JTable(model);
+        history = new JList(historyModel);
+        history.setLayoutOrientation(JList.VERTICAL);
         //history.setBackground(getColorforConvo(convo.getConvoID()));
-        model.addColumn("sender");
-        model.addColumn("message");
-        //String convoIDnoMe = tabby.getTabComponentAt(tabby.getSelectedIndex()).getName();
-        //fillHistory(unParseConvoID(convoIDnoMe));
         fillHistory(convo.getConvoID());
         
         //MESSAGE
@@ -149,11 +147,13 @@ public class ConversationView extends JPanel{
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 String msg = message.getText();
-                message.setText("");
-                String convoIDnoMe = tabby.getTabComponentAt(tabby.getSelectedIndex()).getName();
-                String convoID = unParseConvoID(convoIDnoMe);
-                User.addMsgToConvo(User.getMyConvos().get(convoID), msg);
-                fillHistory(unParseConvoID(convoIDnoMe));
+                if (!msg.equals("")) {
+                    message.setText("");
+                    String convoIDnoMe = tabby.getTabComponentAt(tabby.getSelectedIndex()).getName();
+                    String convoID = unParseConvoID(convoIDnoMe);
+                    User.addMsgToConvo(User.getMyConvos().get(convoID), msg);
+                    fillHistory(unParseConvoID(convoIDnoMe));
+                }
             }
         });
         
@@ -165,11 +165,13 @@ public class ConversationView extends JPanel{
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 String msg = message.getText();
-                message.setText("");
-                String convoIDnoMe = tabby.getTabComponentAt(tabby.getSelectedIndex()).getName();
-                String convoID = unParseConvoID(convoIDnoMe);
-                User.addMsgToConvo(User.getMyConvos().get(convoID), msg);
-                fillHistory(unParseConvoID(convoIDnoMe));
+                if (!msg.equals("")) {
+                    message.setText("");
+                    String convoIDnoMe = tabby.getTabComponentAt(tabby.getSelectedIndex()).getName();
+                    String convoID = unParseConvoID(convoIDnoMe);
+                    User.addMsgToConvo(User.getMyConvos().get(convoID), msg);
+                    fillHistory(unParseConvoID(convoIDnoMe));
+                }
             }
         });
         JPanel messagePanel = new JPanel(new BorderLayout());
@@ -185,14 +187,15 @@ public class ConversationView extends JPanel{
     
     public static void fillHistory(String convoID) {
         //Reset the guessTable for the new game
-        int rows = model.getRowCount();
+        int rows = historyModel.getSize();
         for (int i = rows-1; i >= 0; i--) {
-            model.removeRow(i); 
+            historyModel.remove(i); 
         }
         Conversation convo = User.getMyConvos().get(convoID);
         for (int i = 0; i < convo.getMessages().size(); i++) {
             Message msg = convo.getMessages().get(i);
-            model.addRow(new Object[] {msg.getSender().getUsername(), msg.getText()});
+            historyModel.addElement(msg.getSender().getUsername() + ": " + msg.getText());
+            history.setForeground(colorMap.get(msg.getSender().getColor()));
         }
     }
     
@@ -215,11 +218,10 @@ public class ConversationView extends JPanel{
                 User.startConvo(usernames);
             }
         });
-        
+
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(listScroller, BorderLayout.CENTER);
         panel.add(submitButton, BorderLayout.PAGE_END);
-    
         return panel;
     }
     
@@ -281,8 +283,8 @@ public class ConversationView extends JPanel{
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 //Turn off metal's use of bold fonts
-        UIManager.put("swing.boldMetal", Boolean.FALSE);
-        createAndShowGUI();
+                UIManager.put("swing.boldMetal", Boolean.FALSE);
+                createAndShowGUI();
             }
         });
     }
