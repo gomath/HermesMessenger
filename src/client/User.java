@@ -92,6 +92,7 @@ public class User {
         }
         else if (tokens[0].equals("-q")){
             removeOnlineUser(tokens[1]);
+            ConversationView.updateOnlineUsers();
         }
         else if (tokens[0].equals("-s") || tokens[0].equals("-x")){
             String senderName = null;
@@ -211,7 +212,7 @@ public class User {
             convo.addMessage(new Message(onlineUsers.get(un.toString()), convo, msg.toString()));
         } else {
             convo.addMessage(new Message(new UserInfo(username, color), convo, msg.toString()));
-        } ConversationView.fillHistory(convo.getConvoID());
+        } ConversationView.fillHistory(convo);
     }
     
     public static String login(){
