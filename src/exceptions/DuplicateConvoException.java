@@ -1,6 +1,6 @@
 package exceptions;
 
-public class InvalidUsernameException extends RuntimeException{
+public class DuplicateConvoException extends RuntimeException{
 
     private static final long serialVersionUID = 1L;
 

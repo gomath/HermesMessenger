@@ -5,15 +5,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 
-import exceptions.DuplicateConvoException;
 import exceptions.InvalidUsernameException;
 
-public class User {
+public class OldUser {
     private static String username;
     private static String color;
     private static Socket socket;
@@ -31,7 +27,7 @@ public class User {
      * @param color a Color representing the User's color preference
      * @param socket a Socket that corresponds to the User's connection
      */
-    public User(String username1, String color1, Socket socket1){
+    public OldUser(String username1, String color1, Socket socket1){
         username = username1;
         color = color1;
         socket = socket1;
@@ -56,6 +52,7 @@ public class User {
      * @throws IOException if connection has an error or terminates unexpectedly
      */
     public static void handleConnection(Socket socket) throws IOException {
+        System.out.println("client handling connection");
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
@@ -70,14 +67,17 @@ public class User {
         }
     }
     
-    static void handleRequest(String input) {
+    private static void handleRequest(String input) {
         String[] tokens = input.split(" ");
+        System.out.println("Client handling request: " + input);
         if (input.length()==0){
             ;
         }
         else if (tokens[0].equals("-f")) {
+            System.out.println(Thread.currentThread().getId());
+            System.out.println("did you get it? -f");
             usernameSuccess = "true";
-            //lock.notify();
+            lock.notify();
             ConcurrentHashMap<String, UserInfo> map = new ConcurrentHashMap<String, UserInfo>();
             for(int i=1; i<tokens.length; i++){
                 if(i%2==1){
@@ -88,7 +88,6 @@ public class User {
         }
         else if (tokens[0].equals("-o")){
             addOnlineUser(new UserInfo(tokens[1],tokens[2]));
-            ConversationView.updateOnlineUsers();
         }
         else if (tokens[0].equals("-q")){
             removeOnlineUser(tokens[1]);
@@ -105,11 +104,7 @@ public class User {
                    break; 
                 }
                 else{
-                   if (tokens[i].equals(username)) {
-                       map.put(tokens[i], new UserInfo(username, color)); 
-                   } else {
-                       map.put(tokens[i], onlineUsers.get(tokens[i])); 
-                   }
+                   map.put(tokens[i], onlineUsers.get(tokens[i])); 
                 }
             }
             if(tokens[0].equals("-x")){removeMyConvo(convo);}
@@ -118,12 +113,9 @@ public class User {
         
         else if(tokens[0].equals("-i")){
             usernameSuccess = "false";
-            //lock.notify();
+            lock.notify();
         }
         
-        else if(tokens[0].equals("-c")){
-            updateConvo(input);
-        }
         
         // Should never get here--make sure to return in each of the valid cases above.
         else{
@@ -147,15 +139,8 @@ public class User {
      * Tell the server to start a new conversation
      * @param convo the Conversation to start
      */
-    public static String startConvo(Object[] usernames){
-        ConcurrentHashMap<String, UserInfo> participants = new ConcurrentHashMap<String, UserInfo>();
-        for (Object un: usernames) {
-            participants.put((String) un, onlineUsers.get(un));
-        }
-        participants.put(username, new UserInfo(username, color));
-        Conversation convo = new Conversation(participants);
-        addNewMyConvo(convo);
-        return sendMessageToServer("-s " + convo.getConvoID() + "-u " + username);
+    public static String startConvo(Conversation convo){
+        return sendMessageToServer("-s " + convo.getConvoID());
     }
     
     /**
@@ -172,66 +157,35 @@ public class User {
      * @param text the Message
      */
     public static String addMsgToConvo(Conversation convo, String text){
-        System.out.println("ADDING MESSAGE TO CONVO: " + convo + "TEXT" + text);
-        convo.addMessage(new Message(new UserInfo(username, color), convo, text));
-        return sendMessageToServer("-c " + convo.getConvoID() + "-u " + 
+        return sendMessageToServer("-c " + convo.getConvoID() + " -u " + 
                 username + " -t " + text);
     }
     
-    public static void updateConvo(String input) {
-        //Parse the message data into appropriate fields
-        boolean convo_id = false;
-        StringBuilder ci = new StringBuilder();
-        boolean user = false;
-        StringBuilder un = new StringBuilder();
-        boolean text = false;
-        StringBuilder msg = new StringBuilder();
-        for (String token: input.split(" ")) {
-            if (convo_id && !token.equals("-u")) {
-                ci.append(token);
-                ci.append(" ");
-            } else if (user && !token.equals("-t")) {
-                un.append(token);
-            } else if (text) {
-                msg.append(token);
-                msg.append(" ");
+    public static String login(){
+        System.out.println("login");
+        System.out.println("login: " + Thread.currentThread().getId());
+        sendMessageToServer("-l " + username + " " + color.toString());
+        Thread t = new Thread() {
+            public void run() {
+                synchronized(lock) {
+                    try {
+                        lock.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    System.out.println("Working now");
+                }
             }
-            if (token.equals("-c")) {
-                convo_id = true;
-            } else if (token.equals("-u")) {
-                convo_id = false;
-                user = true;
-            } else if (token.equals("-t")) {
-                user = false;
-                text = true;
+            }
+        };
+        t.start();
+        synchronized(lock){
+            if(usernameSuccess.equals(false)){
+                throw new InvalidUsernameException();
+            }
+            else{
+                return ("-l " + username + " " + color.toString());
             }
         }
-        Conversation convo = myConvos.get(ci.toString());
-        if (!un.toString().equals(username)) {
-            convo.addMessage(new Message(onlineUsers.get(un.toString()), convo, msg.toString()));
-        } else {
-            convo.addMessage(new Message(new UserInfo(username, color), convo, msg.toString()));
-        } ConversationView.fillHistory(convo.getConvoID());
-    }
-    
-    public static String login(){
-        sendMessageToServer("-l " + username + " " + color.toString());
-        return "";
-//        synchronized(lock){
-//            while(true){
-//                try {
-//                    lock.wait();
-//                    if(usernameSuccess.equals("true")){
-//                        return "-l " + username + " " + color.toString();
-//                    }
-//                    else{
-//                        throw new InvalidUsernameException();
-//                    }
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
         
         
     }
@@ -240,7 +194,6 @@ public class User {
      * Tell the server to disconnect the user
      */
     public static void quit(){
-        UserGUI.openLoginView();
         sendMessageToServer("-q " + username);
     }
     
@@ -290,9 +243,7 @@ public class User {
         return myConvos;
     }
     public static void addNewMyConvo(Conversation convo){
-        checkDuplicateConvo(convo.getConvoID());
         myConvos.put(convo.getConvoID(), convo);
-        ConversationView.updateTabs();
     }
     public static void removeMyConvo(Conversation convo){
         for (String ID: myConvos.keySet()){
@@ -301,13 +252,7 @@ public class User {
             }
         }
     }
-    public static void checkDuplicateConvo(String convoID){
-        for (String ID: myConvos.keySet()){
-            if(convoID.equals(ID)){
-                throw new DuplicateConvoException();
-            }
-        }
-    }
+    
     
     
 }
