@@ -88,7 +88,7 @@ public class ConversationView extends JPanel{
             JComponent panel = makePanel(User.getMyConvos().get(convoID));
             tabby.addTab(parseConvoID(convoID), panel);
             JLabel cid = new JLabel(parseConvoID(convoID));
-            cid.setName(parseConvoID(convoID));
+            cid.setName(convoID);
             tabby.setTabComponentAt(tabby.getTabCount()-1, cid);
             //tabby.setBackgroundAt(tabby.getTabCount()-1, getColorforConvo(convoID));
         }
@@ -149,10 +149,9 @@ public class ConversationView extends JPanel{
                 String msg = message.getText();
                 if (!msg.equals("")) {
                     message.setText("");
-                    String convoIDnoMe = tabby.getTabComponentAt(tabby.getSelectedIndex()).getName();
-                    String convoID = unParseConvoID(convoIDnoMe);
+                    String convoID = tabby.getTabComponentAt(tabby.getSelectedIndex()).getName();
                     User.addMsgToConvo(User.getMyConvos().get(convoID), msg);
-                    fillHistory(unParseConvoID(convoIDnoMe));
+                    fillHistory(convoID);
                 }
             }
         });
@@ -167,13 +166,13 @@ public class ConversationView extends JPanel{
                 String msg = message.getText();
                 if (!msg.equals("")) {
                     message.setText("");
-                    String convoIDnoMe = tabby.getTabComponentAt(tabby.getSelectedIndex()).getName();
-                    String convoID = unParseConvoID(convoIDnoMe);
+                    String convoID = tabby.getTabComponentAt(tabby.getSelectedIndex()).getName();
                     User.addMsgToConvo(User.getMyConvos().get(convoID), msg);
-                    fillHistory(unParseConvoID(convoIDnoMe));
+                    fillHistory(convoID);
                 }
             }
         });
+
         JScrollPane historyScroll = new JScrollPane(history); 
         
         JPanel messagePanel = new JPanel(new BorderLayout());
@@ -198,7 +197,6 @@ public class ConversationView extends JPanel{
         for (int i = 0; i < convo.getMessages().size(); i++) {
             Message msg = convo.getMessages().get(i);
             historyModel.addElement(msg.getSender().getUsername() + ": " + msg.getText());
-            history.setForeground(colorMap.get(msg.getSender().getColor()));
         }
     }
     
@@ -218,7 +216,11 @@ public class ConversationView extends JPanel{
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 Object[] usernames = list.getSelectedValues();
-                User.startConvo(usernames);
+                try {
+                    User.startConvo(usernames);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(getRootPane(), "Conversation already exists");
+                }
             }
         });
 
@@ -255,7 +257,7 @@ public class ConversationView extends JPanel{
                 JComponent panel = makePanel(User.getMyConvos().get(convoID));
                 tabby.addTab(parseConvoID(convoID), panel);
                 JLabel cid = new JLabel(parseConvoID(convoID));
-                cid.setName(parseConvoID(convoID));
+                cid.setName(convoID);
                 tabby.setTabComponentAt(tabby.getTabCount()-1, cid);
                 tabby.setBackgroundAt(tabby.getTabCount()-1, getColorforConvo(convoID));
             }

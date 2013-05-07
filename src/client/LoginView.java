@@ -139,7 +139,7 @@ public class LoginView extends JFrame{
                         exit();
                     }
                     else {
-                        JOptionPane.showMessageDialog(getContentPane(), "Pick another username, loser");
+                        JOptionPane.showMessageDialog(getContentPane(), "Username already in use");
                     }
                     //exit();
                 } catch (NumberFormatException e1) {
