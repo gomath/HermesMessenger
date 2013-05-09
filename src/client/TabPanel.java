@@ -19,17 +19,8 @@ public class TabPanel extends JPanel {
     private DefaultListModel historyModel;
     private JScrollPane historyScroll;
     private JList history;
-    private final static ConcurrentHashMap<String, Color> colorMap = new ConcurrentHashMap<String, Color>();
     
     public TabPanel(Conversation convo) {
-        //Make color map
-        colorMap.put("red", Color.red);
-        colorMap.put("orange", Color.orange);
-        colorMap.put("yellow", Color.yellow);
-        colorMap.put("green", Color.green);
-        colorMap.put("blue", Color.blue);
-        colorMap.put("pink", Color.pink);
-        
         this.convo = convo;
         this.color = getColorforConvo();
         
@@ -96,7 +87,7 @@ public class TabPanel extends JPanel {
     private Color getColorforConvo() {
         String firstUN = ConversationView.parseConvoID(convo.getConvoID()).split(" ")[0];
         ConcurrentHashMap<String, UserInfo> users = User.getOnlineUsers();
-        return colorMap.get(users.get(firstUN).getColor());
+        return ConversationView.colorMap.get(users.get(firstUN).getColor());
     }
     
     /**

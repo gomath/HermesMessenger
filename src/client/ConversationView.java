@@ -1,10 +1,13 @@
 package client;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.DefaultListModel;
@@ -38,16 +41,28 @@ public class ConversationView extends JPanel{
     private static DefaultListModel listModel;
     private static JList list;
     private static ConcurrentHashMap<String, TabPanel> tabMap = new ConcurrentHashMap<String, TabPanel>();
-    
+    public final static ConcurrentHashMap<String, Color> colorMap = new ConcurrentHashMap<String, Color>();
+
     public ConversationView() {
         super(new GridLayout(1, 1));
+
+        //Make color map
+        colorMap.put("red", Color.red);
+        colorMap.put("orange", Color.orange);
+        colorMap.put("yellow", Color.yellow);
+        colorMap.put("green", Color.green);
+        colorMap.put("blue", Color.blue);
+        colorMap.put("pink", Color.pink);
+        
         //CREATE WINDOW
         setName("Hermes Messenger");
         setPreferredSize(new Dimension(600,400));
         
         //MENU
         menuBar = new JMenuBar();
-        file = new JMenu("File");
+        menuBar.setBackground(colorMap.get(User.getColor()));
+        file = new JMenu(User.getUsername());
+        file.setBackground(colorMap.get(User.getColor()));
         file.addMenuListener(new MenuListener() {
             public void menuCanceled(MenuEvent arg0) {}
             @Override
@@ -83,7 +98,14 @@ public class ConversationView extends JPanel{
         
         //TABBY
         tabby = new JTabbedPane();
-        
+        tabby.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent arg0) {
+                tabby.setBackgroundAt(tabby.getSelectedIndex(), null);
+            }
+            @Override
+            public void focusLost(FocusEvent arg0) {}
+        });
         //TAB AND PANEL FOR CREATING NEW CONVOS     
         JComponent newPanel = newConvoPanel();
         tabby.addTab("New", newPanel);
@@ -96,7 +118,7 @@ public class ConversationView extends JPanel{
             JLabel cid = new JLabel(parseConvoID(convoID));
             cid.setName(convoID);
             tabby.setTabComponentAt(tabby.getTabCount()-1, cid);
-            tabby.setBackgroundAt(tabby.getTabCount()-1, panel.getColor());
+            //tabby.setBackgroundAt(tabby.getTabCount()-1, panel.getColor());
             tabMap.put(convoID, panel);
         }
         add(tabby);
@@ -138,6 +160,7 @@ public class ConversationView extends JPanel{
                 Object[] usernames = list.getSelectedValues();
                 try {
                     User.startConvo(usernames);
+                    tabby.setSelectedIndex(tabby.getTabCount()-1);
                 } catch (DuplicateConvoException e) {
                     JOptionPane.showMessageDialog(getRootPane(), "Conversation already exists");
                 }
@@ -173,7 +196,7 @@ public class ConversationView extends JPanel{
                 JLabel cid = new JLabel(parseConvoID(convoID));
                 cid.setName(convoID);
                 tabby.setTabComponentAt(tabby.getTabCount()-1, cid);
-                tabby.setBackgroundAt(tabby.getTabCount()-1, panel.getColor());
+                //tabby.setBackgroundAt(tabby.getTabCount()-1, panel.getColor());
                 tabMap.put(convoID, panel);
             }
         }
@@ -185,7 +208,6 @@ public class ConversationView extends JPanel{
     public static void removeTab(String convoID) {
         tabMap.remove(convoID);
         for (int i=tabby.getTabCount()-1; i > 0; i--) {
-            System.out.println("I: " + i + "ID: " + ((TabPanel)tabby.getComponentAt(i)).getConvo().getConvoID() + "WANT " + convoID);
            if (((TabPanel)tabby.getComponentAt(i)).getConvo().getConvoID().equals(convoID)) {
                tabby.remove(i);
            }
@@ -198,6 +220,11 @@ public class ConversationView extends JPanel{
      */
     public static void updateTab(String convoID) {
          tabMap.get(convoID).fillHistory();
+         for (int i=tabby.getTabCount()-1; i > 0; i--) {
+             if (((TabPanel)tabby.getComponentAt(i)).getConvo().getConvoID().equals(convoID) && tabby.getSelectedIndex() != i) {
+                 tabby.setBackgroundAt(i, Color.red);
+             }
+         }
     }
     
     /**
