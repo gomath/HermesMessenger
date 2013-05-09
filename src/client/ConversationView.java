@@ -265,7 +265,7 @@ public class ConversationView extends JPanel{
          tabMap.get(convoID).showMessage();
          for (int i=tabby.getTabCount()-1; i > 0; i--) {
              if (((TabPanel)tabby.getComponentAt(i)).getConvo().getConvoID().equals(convoID) && tabby.getSelectedIndex() != i) {
-                 tabby.setBackgroundAt(i, colorMap.get(User.getColor()));
+                 tabby.setBackgroundAt(i, colorMap.get(User.getMyConvos().get(convoID).getMessages().get(User.getMyConvos().get(convoID).getMessages().size()-1).getSender().getColor()));
              }
          }
     }

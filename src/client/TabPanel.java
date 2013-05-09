@@ -5,8 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.concurrent.ConcurrentHashMap;
-
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -17,14 +15,12 @@ import javax.swing.JTextField;
 
 public class TabPanel extends JPanel {
     private Conversation convo;
-    private final Color color;
     private DefaultListModel historyModel;
     private JScrollPane historyScroll;
     private JList history;
     
     public TabPanel(Conversation convo) {
         this.convo = convo;
-        this.color = getColorforConvo();
         
         //CONERSATION PANEL
         makePanel();    
@@ -83,25 +79,7 @@ public class TabPanel extends JPanel {
         add(messagePanel, BorderLayout.PAGE_END);
         //return panel;
     }
-
-    /**
-     * Returns the appropriate color for a conversation based on user colors
-     * @return the color to use
-     */
-    private Color getColorforConvo() {
-        String firstUN = ConversationView.parseConvoID(convo.getConvoID()).split(" ")[0];
-        ConcurrentHashMap<String, UserInfo> users = User.getOnlineUsers();
-        return ConversationView.colorMap.get(users.get(firstUN).getColor());
-    }
     
-    /**
-     * returns color for this convo panel
-     * @return color
-     */
-    public Color getColor() {
-        return this.color;
-        
-    }
     /**
      * returns conversation
      * @return convo the conversation
@@ -137,7 +115,7 @@ public class TabPanel extends JPanel {
         public Component getListCellRendererComponent( JList list, Object value, int index, boolean isSelected, boolean cellHasFocus ) {  
             Component c = super.getListCellRendererComponent( list, value, index, isSelected, cellHasFocus );  
             c.setBackground(ConversationView.colorMap.get(convo.getMessages().get(index).getSender().getColor()));
-            c.setForeground(color.black);
+            c.setForeground(Color.black);
             return c;  
         }
     }
