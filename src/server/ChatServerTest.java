@@ -16,7 +16,11 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 
 import client.User;
-
+/**
+ * 
+ * @category no_didit
+ *
+ */
 public class ChatServerTest {
 
     
