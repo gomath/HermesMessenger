@@ -105,6 +105,14 @@ public class TabPanel extends JPanel {
      */
     public Color getColor() {
         return this.color;
+        
+    }
+    /**
+     * returns conversation
+     * @return convo the conversation
+     */
+    public Conversation getConvo() {
+        return convo;
     }
     
     /**

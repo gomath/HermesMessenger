@@ -1,12 +1,10 @@
 package client;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.DefaultListModel;
@@ -25,6 +23,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 
 import exceptions.DuplicateConvoException;
 
@@ -34,6 +34,7 @@ public class ConversationView extends JPanel{
     private static JMenuBar menuBar;
     private final JMenu file;
     private final JMenuItem logout;
+    private final JMenuItem closeConvo;
     private static DefaultListModel listModel;
     private static JList list;
     private static ConcurrentHashMap<String, TabPanel> tabMap = new ConcurrentHashMap<String, TabPanel>();
@@ -47,6 +48,19 @@ public class ConversationView extends JPanel{
         //MENU
         menuBar = new JMenuBar();
         file = new JMenu("File");
+        file.addMenuListener(new MenuListener() {
+            public void menuCanceled(MenuEvent arg0) {}
+            @Override
+            public void menuDeselected(MenuEvent arg0) {}
+            @Override
+            public void menuSelected(MenuEvent arg0) {
+                if (tabby.getSelectedIndex() == 0) {
+                    closeConvo.setVisible(false);
+                } else {
+                    closeConvo.setVisible(true);
+                }
+            }
+        });
         menuBar.add(file);
         //LOGOUT BUTTON
         logout = new JMenuItem("Logout");
@@ -57,6 +71,15 @@ public class ConversationView extends JPanel{
             }
         });
         file.add(logout);
+        //CLOSE CONVO BUTTON
+        closeConvo = new JMenuItem("Close Conversation");
+        closeConvo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                User.closeConvo(((TabPanel) tabby.getSelectedComponent()).getConvo());
+            }
+        });
+        file.add(closeConvo);
         
         //TABBY
         tabby = new JTabbedPane();
@@ -153,6 +176,19 @@ public class ConversationView extends JPanel{
                 tabby.setBackgroundAt(tabby.getTabCount()-1, panel.getColor());
                 tabMap.put(convoID, panel);
             }
+        }
+    }
+    
+    /**
+     * Closes tab for a conversation that was closed
+     */
+    public static void removeTab(String convoID) {
+        tabMap.remove(convoID);
+        for (int i=tabby.getTabCount()-1; i > 0; i--) {
+            System.out.println("I: " + i + "ID: " + ((TabPanel)tabby.getComponentAt(i)).getConvo().getConvoID() + "WANT " + convoID);
+           if (((TabPanel)tabby.getComponentAt(i)).getConvo().getConvoID().equals(convoID)) {
+               tabby.remove(i);
+           }
         }
     }
     

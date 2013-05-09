@@ -5,13 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 
 import exceptions.DuplicateConvoException;
-import exceptions.InvalidUsernameException;
 
 public class User {
     private static String username;
@@ -166,7 +162,8 @@ public class User {
      * @param convo the Conversation to end
      */
     public static String closeConvo(Conversation convo){
-        return sendMessageToServer("-x " + convo.getConvoID());
+        removeMyConvo(convo);
+        return sendMessageToServer("-x " + convo.getConvoID() + "-u " + username);
     }
     
     /**
@@ -175,7 +172,6 @@ public class User {
      * @param text the Message
      */
     public static String addMsgToConvo(Conversation convo, String text){
-        System.out.println("ADDING MESSAGE TO CONVO: " + convo + "TEXT" + text);
         convo.addMessage(new Message(new UserInfo(username, color), convo, text));
         return sendMessageToServer("-c " + convo.getConvoID() + "-u " + 
                 username + " -t " + text);
@@ -298,11 +294,8 @@ public class User {
         ConversationView.updateTabs();
     }
     public static void removeMyConvo(Conversation convo){
-        for (String ID: myConvos.keySet()){
-            if (ID.equals(convo.getConvoID())){
-                myConvos.remove(ID);
-            }
-        }
+        ConversationView.removeTab(convo.getConvoID());
+        myConvos.remove(convo.getConvoID());
     }
     public static void checkDuplicateConvo(String convoID){
         for (String ID: myConvos.keySet()){
