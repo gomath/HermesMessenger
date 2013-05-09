@@ -28,7 +28,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
-
 import exceptions.DuplicateConvoException;
 
 public class ConversationView extends JPanel{
@@ -151,7 +150,7 @@ public class ConversationView extends JPanel{
         list.setLayoutOrientation(JList.VERTICAL_WRAP);
         updateOnlineUsers();
         JScrollPane listScroller = new JScrollPane(list);        
-        
+        //START CONVERSATION BUTTON
         JButton startButton = new JButton();
         startButton.setText("Start Conversation");
         startButton.addActionListener(new ActionListener() {
@@ -166,10 +165,54 @@ public class ConversationView extends JPanel{
                 }
             }
         });
-
+        //VIEW HISTORY CONVERSATION BUTTON
+        JButton historyButton = new JButton();
+        historyButton.setText("View Chat History");
+        historyButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                Object[] usernames = list.getSelectedValues();
+                ConcurrentHashMap<String, UserInfo> participants = new ConcurrentHashMap<String, UserInfo>();
+                for (Object un: usernames) {
+                    participants.put((String) un, User.getOnlineUsers().get(un));
+                }
+                participants.put(User.getUsername(), new UserInfo(User.getUsername(), User.getColor()));
+                Conversation convo = new Conversation(participants);
+                if (User.getInactiveConvos().keySet().contains(convo.getConvoID())) {
+                    //SHOW CONVERSATION HISTORY
+                    //Create and set up the window.
+                    frame = new JFrame(parseConvoID(convo.getConvoID()) + "Chat History");
+                    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    frame.setPreferredSize(new Dimension(400, 300));
+                    
+                    //CREATE JLIST CONTAINING HISTORY
+                    DefaultListModel historyModel = new DefaultListModel();
+                    JList history = new JList(historyModel);
+                    history.setLayoutOrientation(JList.VERTICAL);
+                    JScrollPane historyScroll = new JScrollPane(history);
+                    for (Message msg : User.getInactiveConvos().get(convo.getConvoID()).getMessages()) {
+                        historyModel.addElement(msg.getSender().getUsername() + ": " + msg.getText());
+                    }
+                    //Add content to the window.
+                    frame.add(historyScroll, BorderLayout.CENTER);
+                    
+                    //Display the window.
+                    frame.pack();
+                    frame.setVisible(true);
+                } else if (User.getMyConvos().keySet().contains(convo.getConvoID())) {
+                    JOptionPane.showMessageDialog(getRootPane(), "Conversation is currently active");
+                } else {
+                    JOptionPane.showMessageDialog(getRootPane(), "No chat history to display");
+                }
+            }
+        });
+        JPanel buttonPanel = new JPanel(new BorderLayout());
+        buttonPanel.add(startButton, BorderLayout.LINE_START);
+        buttonPanel.add(historyButton, BorderLayout.LINE_END);
+        
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(listScroller, BorderLayout.CENTER);
-        panel.add(startButton, BorderLayout.PAGE_END);
+        panel.add(buttonPanel, BorderLayout.PAGE_END);
         return panel;
     }
     
@@ -219,12 +262,20 @@ public class ConversationView extends JPanel{
      * @param convoID the conversation to be updated
      */
     public static void updateTab(String convoID) {
-         tabMap.get(convoID).fillHistory();
+         tabMap.get(convoID).showMessage();
          for (int i=tabby.getTabCount()-1; i > 0; i--) {
              if (((TabPanel)tabby.getComponentAt(i)).getConvo().getConvoID().equals(convoID) && tabby.getSelectedIndex() != i) {
-                 tabby.setBackgroundAt(i, Color.red);
+                 tabby.setBackgroundAt(i, colorMap.get(User.getColor()));
              }
          }
+    }
+    
+    /**
+     * fills the conversation history in the tab containing conversation given by convoID
+     * @param convoID the conversation to be updated
+     */
+    public static void fillHistory(String convoID) {
+         tabMap.get(convoID).fillHistory();
     }
     
     /**

@@ -2,10 +2,12 @@ package client;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
@@ -38,6 +40,8 @@ public class TabPanel extends JPanel {
         historyModel = new DefaultListModel();
         history = new JList(historyModel);
         history.setLayoutOrientation(JList.VERTICAL);
+        history.setFocusable(false);
+        history.setCellRenderer(new MessageRenderer());
         historyScroll = new JScrollPane(history);
         
         //MESSAGE
@@ -49,7 +53,7 @@ public class TabPanel extends JPanel {
                 if (!msg.equals("")) {
                     message.setText("");
                     User.addMsgToConvo(convo, msg);
-                    fillHistory();
+                    showMessage();
                 }
             }
         });
@@ -64,7 +68,7 @@ public class TabPanel extends JPanel {
                 if (!msg.equals("")) {
                     message.setText("");
                     User.addMsgToConvo(convo, msg);
-                    fillHistory();
+                    showMessage();
                 }
             }
         });
@@ -109,9 +113,32 @@ public class TabPanel extends JPanel {
     /**
      * fills the history with the messages from the conversation
      */
-    public void fillHistory() {
+    public void showMessage() {
         Message msg = convo.getMessages().get(convo.getMessages().size()-1);
         historyModel.addElement(msg.getSender().getUsername() + ": " + msg.getText());
+        historyScroll.getVerticalScrollBar().setValue(historyScroll.getVerticalScrollBar().getMaximum());
     }
     
+    /**
+     * fills in all conversation history
+     */
+    public void fillHistory() {
+        for (Message msg : convo.getMessages()) {
+            historyModel.addElement(msg.getSender().getUsername() + ": " + msg.getText());
+            historyScroll.getVerticalScrollBar().setValue(historyScroll.getVerticalScrollBar().getMaximum());
+        }
+    }
+    
+    /**
+     * Renders messages with colors of senders
+     *
+     */
+    private class MessageRenderer extends DefaultListCellRenderer {
+        public Component getListCellRendererComponent( JList list, Object value, int index, boolean isSelected, boolean cellHasFocus ) {  
+            Component c = super.getListCellRendererComponent( list, value, index, isSelected, cellHasFocus );  
+            c.setBackground(ConversationView.colorMap.get(convo.getMessages().get(index).getSender().getColor()));
+            c.setForeground(color.black);
+            return c;  
+        }
+    }
 }

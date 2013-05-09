@@ -16,6 +16,7 @@ public class User {
     private static ConcurrentHashMap<String, UserInfo> onlineUsers;
     private static Conversation activeConvo;
     private static ConcurrentHashMap<String, Conversation> myConvos;
+    private static ConcurrentHashMap<String, Conversation> inactiveConvos;
     private static PrintWriter out;
     private static String usernameSuccess;
     
@@ -33,6 +34,7 @@ public class User {
         socket = socket1;
         onlineUsers = new ConcurrentHashMap<String, UserInfo>();
         myConvos = new ConcurrentHashMap<String, Conversation>();
+        inactiveConvos = new ConcurrentHashMap<String, Conversation>();
         try {
             out = new PrintWriter(socket.getOutputStream());
         } catch (IOException e) {
@@ -288,13 +290,23 @@ public class User {
     public static ConcurrentHashMap<String, Conversation> getMyConvos(){
         return myConvos;
     }
+    public static ConcurrentHashMap<String, Conversation> getInactiveConvos(){
+        return inactiveConvos;
+    }
     public static void addNewMyConvo(Conversation convo){
         checkDuplicateConvo(convo.getConvoID());
-        myConvos.put(convo.getConvoID(), convo);
+        if (inactiveConvos.keySet().contains(convo.getConvoID())) {
+            myConvos.put(convo.getConvoID(), inactiveConvos.get(convo.getConvoID()));
+            inactiveConvos.remove(convo.getConvoID());
+        } else {
+            myConvos.put(convo.getConvoID(), convo);
+        }
         ConversationView.updateTabs();
+        ConversationView.fillHistory(convo.getConvoID());
     }
     public static void removeMyConvo(Conversation convo){
         ConversationView.removeTab(convo.getConvoID());
+        inactiveConvos.put(convo.getConvoID(), myConvos.get(convo.getConvoID()));
         myConvos.remove(convo.getConvoID());
     }
     public static void checkDuplicateConvo(String convoID){
