@@ -92,6 +92,11 @@ public class User {
         }
         else if (tokens[0].equals("-q")){
             removeOnlineUser(tokens[1]);
+            for (String convoID : inactiveConvos.keySet()) {
+                if (convoID.contains(tokens[1])) {
+                    inactiveConvos.remove(convoID);
+                }
+            }
             ConversationView.updateOnlineUsers();
         }
         else if (tokens[0].equals("-s") || tokens[0].equals("-x")){
@@ -242,6 +247,9 @@ public class User {
      */
     public static void quit(){
         UserGUI.openLoginView();
+        for (Conversation convo : myConvos.values()) {
+            closeConvo(convo);
+        }
         sendMessageToServer("-q " + username);
     }
     
