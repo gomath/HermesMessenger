@@ -3,14 +3,20 @@ package client;
 import javax.swing.JFrame;
 
 public class UserGUI  extends JFrame {
-
+    private static LoginView login = null;
+    private static ConversationView convo = null;
     public UserGUI() {
-        LoginView.main(new String[]{});
+        login = new LoginView();
+        login.main(new String[]{});
     }
     public static void openConversationView() {
-        ConversationView.main(new String[]{});
+        login.close();
+        convo = new ConversationView();
+        convo.main(new String[]{});
     }
     public static void openLoginView() {
-        LoginView.main(new String[]{});
+        convo.close();
+        login = new LoginView();
+        login.main(new String[]{});
     }
 }

@@ -3,14 +3,17 @@ package client;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.net.ConnectException;
 import java.net.UnknownHostException;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -18,6 +21,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import exceptions.InvalidUsernameException;
@@ -34,11 +38,13 @@ public class LoginView extends JFrame{
     public LoginView() {
         setTitle("Hermes Messenger Login");
         setBackground(new Color(96, 80, 220));
-        setPreferredSize(new Dimension(600,400));
-        
+        setPreferredSize(new Dimension(300,300));
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         //HERMES
         hermes = new JLabel("HERMES");
         hermes.setForeground(Color.white);
+        hermes.setAlignmentX(CENTER_ALIGNMENT);
         hermes.setAlignmentY(CENTER_ALIGNMENT);
         hermes.setFont(new Font("Serif", Font.BOLD, 50));
         messenger = new JLabel("MESSENGER");
@@ -49,6 +55,7 @@ public class LoginView extends JFrame{
         //IP ADDRESS FIELD
         ipAddress = new JTextField();
         ipAddress.setText("IP Address");
+        ipAddress.setMaximumSize(new Dimension(200, 1));
         ipAddress.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent arg0) {}
@@ -75,6 +82,7 @@ public class LoginView extends JFrame{
         //PORT NUMBER
         portNumber = new JTextField();
         portNumber.setText("Port");
+        portNumber.setMaximumSize(new Dimension(200, 1));
         portNumber.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent arg0) {}
@@ -101,6 +109,7 @@ public class LoginView extends JFrame{
         //USERNAME
         username = new JTextField();
         username.setText("Username");
+        username.setMaximumSize(new Dimension(200, 1));
         username.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent arg0) {}
@@ -126,7 +135,11 @@ public class LoginView extends JFrame{
         //COLOR PICKER
         String[] colorStrings = {"red", "orange", "yellow", "green", "blue", "pink"};
         colorDropDown = new JComboBox(colorStrings);
-        colorDropDown.setSelectedIndex(4);
+        colorDropDown.setSelectedIndex(0);
+        DefaultListCellRenderer dlcr = new DefaultListCellRenderer();
+        dlcr.setHorizontalAlignment(DefaultListCellRenderer.CENTER);
+        colorDropDown.setRenderer(dlcr);
+        colorDropDown.setMaximumSize(new Dimension(300, 1));
         
         //SUBMIT BUTTON
         submitButton = new JButton();
@@ -136,26 +149,25 @@ public class LoginView extends JFrame{
             public void actionPerformed(ActionEvent arg0) {
                 try {
                     if(ChatClient.attemptLogin(ipAddress.getText(), portNumber.getText(), username.getText(), (String) colorDropDown.getSelectedItem())) {
-                        exit();
+                        UserGUI.openConversationView();
                     }
                     else {
                         JOptionPane.showMessageDialog(getContentPane(), "Username already in use");
                     }
-                    //exit();
                 } catch (NumberFormatException e1) {
-                    //INVALID PORT NUMBER
                     JOptionPane.showMessageDialog(getContentPane(), "Invalid port number");
                     portNumber.setText("Port");
                 } catch (UnknownHostException e2) {
-                    //INVALID IP
                     JOptionPane.showMessageDialog(getContentPane(), "Invalid IP Address");
                     ipAddress.setText("IP Address");
                 } catch (InvalidUsernameException e3) {
                     JOptionPane.showMessageDialog(getContentPane(), "Invalid Username");
                     username.setText("Username");
-                } catch (Exception e4) {
-                    System.out.println(e4);
-                    JOptionPane.showMessageDialog(getContentPane(), e4.getStackTrace());
+                } catch (ConnectException e4) {
+                    JOptionPane.showMessageDialog(getContentPane(), "Invalid IP Address");
+                    ipAddress.setText("IP Address");
+                } catch (Exception e5) {
+                    JOptionPane.showMessageDialog(getContentPane(), e5);
                     ipAddress.setText("IP Address");
                     portNumber.setText("Port");
                     username.setText("Username");
@@ -172,35 +184,37 @@ public class LoginView extends JFrame{
         layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
                 .addComponent(hermes)
                 .addComponent(messenger)
-                .addGroup(layout.createSequentialGroup()
-                    .addComponent(ipAddress)
-                    .addComponent(portNumber)
-                    .addComponent(username)
-                    .addComponent(colorDropDown)
-                    .addComponent(submitButton)));
+                .addComponent(ipAddress)
+                .addComponent(portNumber)
+                .addComponent(username)
+                .addComponent(colorDropDown)
+                .addComponent(submitButton));
         //VERTICAL GROUPINGS
         layout.setVerticalGroup(layout.createSequentialGroup()
                 .addComponent(hermes)
                 .addComponent(messenger)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(ipAddress)
-                    .addComponent(portNumber)
-                    .addComponent(username)
-                    .addComponent(colorDropDown)
-                    .addComponent(submitButton)));
+                .addComponent(ipAddress)
+                .addComponent(portNumber)
+                .addComponent(username)
+                .addComponent(colorDropDown)
+                .addComponent(submitButton));
         getRootPane().setDefaultButton(submitButton);
         pack();
     }
-    public void exit() {
-        UserGUI.openConversationView();
-    }
     
-    public static void main(final String[] args) {
+    public void main(final String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 LoginView main = new LoginView();
                 main.setVisible(true);
             }
         });
+    }
+    /**
+     * closes the frame
+     */
+    public void close() {
+        this.setVisible(false);
+        this.dispose();
     }
 }
