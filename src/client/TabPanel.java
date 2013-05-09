@@ -114,7 +114,8 @@ public class TabPanel extends JPanel {
     private class MessageRenderer extends DefaultListCellRenderer {
         public Component getListCellRendererComponent( JList list, Object value, int index, boolean isSelected, boolean cellHasFocus ) {  
             Component c = super.getListCellRendererComponent( list, value, index, isSelected, cellHasFocus );  
-            c.setBackground(ConversationView.colorMap.get(convo.getMessages().get(index).getSender().getColor()));
+            Color color = ConversationView.colorMap.get(convo.getMessages().get(index).getSender().getColor());
+            c.setBackground(new Color(color.getRed(), color.getGreen(), color.getBlue(), 75));
             c.setForeground(Color.black);
             return c;  
         }
