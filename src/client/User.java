@@ -61,8 +61,10 @@ public class User {
 
         try {
             for (String line =in.readLine(); line!=null; line=in.readLine()) {
-                System.out.println("CLIENT INBOX: " + line);
-                handleRequest(line);
+                if (line.length() != 0) {
+                    System.out.println("CLIENT INBOX: " + line);
+                    handleRequest(line);
+                }
             }
         } finally {        
             out.close();
@@ -212,7 +214,7 @@ public class User {
             convo.addMessage(new Message(onlineUsers.get(un.toString()), convo, msg.toString()));
         } else {
             convo.addMessage(new Message(new UserInfo(username, color), convo, msg.toString()));
-        } ConversationView.fillHistory(convo);
+        } ConversationView.updateTab(convo.getConvoID());
     }
     
     public static String login(){
