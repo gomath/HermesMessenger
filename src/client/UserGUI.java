@@ -8,8 +8,11 @@ public class UserGUI  extends JFrame {
     private static User user;
     public UserGUI(User user1) {
         user = user1;
+        System.out.println("haven't made login!" + Thread.currentThread().getId());
         login = new LoginView();
-        user.setLoginView(login);
+        System.out.println("just made login!");
+        User.setLoginView(login);
+        System.out.println("starting login.main");
         login.main(new String[]{});
     }
     public static void openConversationView() {

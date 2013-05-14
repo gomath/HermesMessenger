@@ -4,8 +4,13 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import javax.swing.SwingUtilities;
+
 import exceptions.InvalidUsernameException;
 
+/**
+ * Wraps together the GUI and User classes. Starts a GUI and logs a user in.
+ */
 public class ChatClient {
     private static User user;
     
@@ -13,8 +18,15 @@ public class ChatClient {
      * Runs a GUIThread
      */
     public ChatClient(){
-        GUIThread guiThread = new GUIThread(user);
-        new Thread(guiThread).start();
+        Runnable startGui = new Runnable() {
+            public void run(){
+                System.out.println(Thread.currentThread().getId());
+                new UserGUI(user);
+            }
+        };
+        SwingUtilities.invokeLater(startGui);
+        //GUIThread guiThread = new GUIThread(user);
+        //new Thread(guiThread).start();
     }
     /**
      * Sets the user instance variable, based on the desired username, color and socket
@@ -55,5 +67,9 @@ public class ChatClient {
         user.main();
         //send a login message
         User.login();        
+    }
+    
+    public static void main(String[] args){
+        new ChatClient();
     }
 }

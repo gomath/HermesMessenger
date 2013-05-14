@@ -108,19 +108,7 @@ public class ConversationView extends JPanel{
         });
         //TAB AND PANEL FOR CREATING NEW CONVOS     
         JComponent newPanel = newConvoPanel();
-        tabby.addTab("New", newPanel);
-        
-        //ADD TABS FOR ALL CONVERSATIONS
-        for (String convoID : User.getMyConvos().keySet()) {
-            Conversation convo = User.getMyConvos().get(convoID);
-            TabPanel panel = new TabPanel(convo);
-            tabby.addTab(parseConvoID(convoID), panel);
-            JLabel cid = new JLabel(parseConvoID(convoID));
-            cid.setName(convoID);
-            tabby.setTabComponentAt(tabby.getTabCount()-1, cid);
-            //tabby.setBackgroundAt(tabby.getTabCount()-1, panel.getColor());
-            tabMap.put(convoID, panel);
-        }
+        tabby.addTab("New", newPanel);       
         add(tabby);
         tabby.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
     }
@@ -265,7 +253,10 @@ public class ConversationView extends JPanel{
     public static void updateTab(String convoID) {
          tabMap.get(convoID).showMessage();
          for (int i=tabby.getTabCount()-1; i > 0; i--) {
+             //finds the appropriate tab that corresponds to the convoID
              if (((TabPanel)tabby.getComponentAt(i)).getConvo().getConvoID().equals(convoID) && tabby.getSelectedIndex() != i) {
+                 //finds the color of the most recent message sender, and sets the
+                 //tab background to be that color
                  tabby.setBackgroundAt(i, colorMap.get(User.getMyConvos().get(convoID).getMessages().get(User.getMyConvos().get(convoID).getMessages().size()-1).getSender().getColor()));
              }
          }

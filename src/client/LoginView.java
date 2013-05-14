@@ -169,13 +169,13 @@ public class LoginView extends JFrame{
                 }
             }
         });
-        
         //GROUP LAYOUT
         GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
         //HORIZONTAL GROUPINGS
+        System.out.println("grouping: " + Thread.currentThread().getId());
         layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
                 .addComponent(hermes)
                 .addComponent(messenger)
@@ -198,18 +198,38 @@ public class LoginView extends JFrame{
     }
     
     public void main(final String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                LoginView main = new LoginView();
-                main.setVisible(true);
+        //set the visibility to true
+        final class loginRunnable implements Runnable {
+            private LoginView view;
+            
+            public loginRunnable(LoginView view1){
+                view = view1;
             }
-        });
+            public void run(){
+                view.setVisible(true);
+            }  
+        }
+        Runnable login = new loginRunnable(this);
+        SwingUtilities.invokeLater(login);
+        
     }
     /**
      * closes the frame
      */
     public void close() {
-        this.setVisible(false);
-        this.dispose();
+        //set visibility to false, and dispose
+        final class closeRunnable implements Runnable {
+            private LoginView view;
+            
+            public closeRunnable(LoginView view1){
+                view = view1;
+            }
+            public void run(){
+                view.setVisible(false);
+                view.dispose();
+            }  
+        }
+        Runnable close = new closeRunnable(this);
+        SwingUtilities.invokeLater(close);
     }
 }

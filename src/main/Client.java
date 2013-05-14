@@ -11,6 +11,6 @@ public class Client {
      * Start a GUI chat client.
      */
     public static void main(String[] args) {
-        new ChatClient();
+        ChatClient.main(new String[0]);
     }
 }
