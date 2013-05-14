@@ -12,6 +12,10 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
+/**
+ * @category no_didit
+ *
+ */
 public class ChatServerNoDiditTest {
 
     @Test
