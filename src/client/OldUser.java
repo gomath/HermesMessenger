@@ -67,7 +67,7 @@ public class OldUser {
         }
     }
     
-    private static void handleRequest(String input) {
+    public static void handleRequest(String input) {
         String[] tokens = input.split(" ");
         System.out.println("Client handling request: " + input);
         if (input.length()==0){
@@ -77,6 +77,7 @@ public class OldUser {
             System.out.println(Thread.currentThread().getId());
             System.out.println("did you get it? -f");
             usernameSuccess = "true";
+            System.out.println("notifying true");
             lock.notify();
             ConcurrentHashMap<String, UserInfo> map = new ConcurrentHashMap<String, UserInfo>();
             for(int i=1; i<tokens.length; i++){
@@ -113,6 +114,7 @@ public class OldUser {
         
         else if(tokens[0].equals("-i")){
             usernameSuccess = "false";
+            System.out.println("notifying false");
             lock.notify();
         }
         
@@ -161,7 +163,7 @@ public class OldUser {
                 username + " -t " + text);
     }
     
-    public static String login(){
+    public static boolean login(){
         System.out.println("login");
         System.out.println("login: " + Thread.currentThread().getId());
         sendMessageToServer("-l " + username + " " + color.toString());
@@ -169,21 +171,26 @@ public class OldUser {
             public void run() {
                 synchronized(lock) {
                     try {
+                        System.out.println("Wait starting");
                         lock.wait();
+                        System.out.println("wait ending");
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    System.out.println("Working now");
+                        return;
                 }
             }
             }
         };
         t.start();
+
+        System.out.println("Wait over1");
         synchronized(lock){
-            if(usernameSuccess.equals(false)){
-                throw new InvalidUsernameException();
+
+            System.out.println("Wait over " + usernameSuccess + " end");
+            if(usernameSuccess.equals("false")){
+                return false;
             }
             else{
-                return ("-l " + username + " " + color.toString());
+                return true;
             }
         }
         

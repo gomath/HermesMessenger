@@ -25,6 +25,7 @@ import javax.swing.SwingUtilities;
 import exceptions.InvalidUsernameException;
 
 public class LoginView extends JFrame{
+    private static final long serialVersionUID = 1L;
     private final JTextField ipAddress;
     private final JTextField portNumber;
     private final JTextField username;
@@ -146,12 +147,8 @@ public class LoginView extends JFrame{
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 try {
-                    if(ChatClient.attemptLogin(ipAddress.getText(), portNumber.getText(), username.getText(), (String) colorDropDown.getSelectedItem())) {
-                        UserGUI.openConversationView();
-                    }
-                    else {
-                        JOptionPane.showMessageDialog(getContentPane(), "Username already in use");
-                    }
+                    System.out.println("in the gui: " + Thread.currentThread().getId());
+                    ChatClient.attemptLogin(ipAddress.getText(), portNumber.getText(), username.getText(), (String) colorDropDown.getSelectedItem());                        
                 } catch (NumberFormatException e1) {
                     JOptionPane.showMessageDialog(getContentPane(), "Invalid port number");
                     portNumber.setText("Port");

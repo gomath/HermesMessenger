@@ -7,6 +7,9 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+
 import exceptions.DuplicateConvoException;
 
 public class User {
@@ -18,9 +21,8 @@ public class User {
     private static ConcurrentHashMap<String, Conversation> myConvos;
     private static ConcurrentHashMap<String, Conversation> inactiveConvos;
     private static PrintWriter out;
-    private static String usernameSuccess;
+    private static LoginView loginView;
     
-    private static Object lock; //used to wait for login confirmation
     
     /**
      * Create a User, initialize its instance variables
@@ -40,7 +42,6 @@ public class User {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        lock = new Object();
     }
     
     public void main() throws IOException{
@@ -76,8 +77,13 @@ public class User {
             ;
         }
         else if (tokens[0].equals("-f")) {
-            usernameSuccess = "true";
-            //lock.notify();
+            Runnable openConvoView = new Runnable() {
+                public void run(){
+                    System.out.println(Thread.currentThread().getId());
+                    UserGUI.openConversationView();
+                }
+            };
+            SwingUtilities.invokeLater(openConvoView);
             ConcurrentHashMap<String, UserInfo> map = new ConcurrentHashMap<String, UserInfo>();
             for(int i=1; i<tokens.length; i++){
                 if(i%2==1){
@@ -88,7 +94,13 @@ public class User {
         }
         else if (tokens[0].equals("-o")){
             addOnlineUser(new UserInfo(tokens[1],tokens[2]));
-            ConversationView.updateOnlineUsers();
+            Runnable update = new Runnable() {
+                public void run(){
+                    System.out.println(Thread.currentThread().getId());
+                    ConversationView.updateOnlineUsers();
+                }
+            };
+            SwingUtilities.invokeLater(update);
         }
         else if (tokens[0].equals("-q")){
             removeOnlineUser(tokens[1]);
@@ -97,17 +109,23 @@ public class User {
                     inactiveConvos.remove(convoID);
                 }
             }
-            ConversationView.updateOnlineUsers();
+            Runnable update = new Runnable() {
+                public void run(){
+                    System.out.println(Thread.currentThread().getId());
+                    ConversationView.updateOnlineUsers();
+                }
+            };
+            SwingUtilities.invokeLater(update);
         }
         else if (tokens[0].equals("-s") || tokens[0].equals("-x")){
-            String senderName = null;
+            //String senderName = null;
             Conversation convo = null;
-            //StringBuilder convoID = new StringBuilder();   
             ConcurrentHashMap<String, UserInfo> map = new ConcurrentHashMap<String, UserInfo>();
+            //build the hashmap of usernames to UserInfo
             for(int i=1; i<tokens.length; i++){
                 if (tokens[i].equals("-u")){
                    convo = new Conversation(map);
-                   senderName = tokens[i+1];
+                   //senderName = tokens[i+1];
                    break; 
                 }
                 else{
@@ -122,16 +140,21 @@ public class User {
             else{addNewMyConvo(convo);}
         }
         
-        else if(tokens[0].equals("-i")){
-            usernameSuccess = "false";
-            //lock.notify();
+        else if(tokens[0].equals("-i")){        
+            Runnable duplicateUN = new Runnable() {
+                public void run(){
+                    System.out.println(Thread.currentThread().getId());
+                    JOptionPane.showMessageDialog(loginView.getContentPane(), "Username already in use");
+                }
+            };
+            SwingUtilities.invokeLater(duplicateUN);
         }
         
         else if(tokens[0].equals("-c")){
             updateConvo(input);
         }
         
-        // Should never get here--make sure to return in each of the valid cases above.
+        // Should never get here
         else{
             throw new UnsupportedOperationException();
         }
@@ -217,29 +240,27 @@ public class User {
             convo.addMessage(new Message(onlineUsers.get(un.toString()), convo, msg.toString()));
         } else {
             convo.addMessage(new Message(new UserInfo(username, color), convo, msg.toString()));
-        } ConversationView.updateTab(convo.getConvoID());
+        } 
+        
+        //update tab from GUI thread
+        final class updateRunnable implements Runnable {
+            private Conversation convo;
+            
+            public updateRunnable(Conversation convo1){
+                convo = convo1;
+            }
+            public void run(){
+                System.out.println(Thread.currentThread().getId());
+                ConversationView.updateTab(convo.getConvoID());
+            }  
+        }
+        Runnable update = new updateRunnable(convo);
+        SwingUtilities.invokeLater(update);
     }
     
     public static String login(){
         sendMessageToServer("-l " + username + " " + color.toString());
         return "";
-//        synchronized(lock){
-//            while(true){
-//                try {
-//                    lock.wait();
-//                    if(usernameSuccess.equals("true")){
-//                        return "-l " + username + " " + color.toString();
-//                    }
-//                    else{
-//                        throw new InvalidUsernameException();
-//                    }
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-        
-        
     }
     
     /**
@@ -309,20 +330,52 @@ public class User {
         } else {
             myConvos.put(convo.getConvoID(), convo);
         }
-        ConversationView.updateTabs();
-        ConversationView.fillHistory(convo.getConvoID());
+        
+        //update tab from GUI thread
+        final class updateRunnable implements Runnable {
+            private Conversation convo;
+            
+            public updateRunnable(Conversation convo1){
+                convo = convo1;
+            }
+            public void run(){
+                System.out.println(Thread.currentThread().getId());
+                ConversationView.updateTabs();
+                ConversationView.fillHistory(convo.getConvoID());
+            }  
+        }
+        Runnable update = new updateRunnable(convo);
+        SwingUtilities.invokeLater(update);      
     }
+    
     public static void removeMyConvo(Conversation convo){
-        ConversationView.removeTab(convo.getConvoID());
+        final class updateRunnable implements Runnable {
+            private Conversation convo;
+            
+            public updateRunnable(Conversation convo1){
+                convo = convo1;
+            }
+            public void run(){
+                System.out.println(Thread.currentThread().getId());
+                ConversationView.removeTab(convo.getConvoID());
+            }  
+        }
+        Runnable update = new updateRunnable(convo);
+        SwingUtilities.invokeLater(update);
+        
         inactiveConvos.put(convo.getConvoID(), myConvos.get(convo.getConvoID()));
         myConvos.remove(convo.getConvoID());
     }
+    
     public static void checkDuplicateConvo(String convoID){
         for (String ID: myConvos.keySet()){
             if(convoID.equals(ID)){
                 throw new DuplicateConvoException();
             }
         }
+    }
+    public static void setLoginView(LoginView login){
+        loginView = login;
     }
     
     

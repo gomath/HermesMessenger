@@ -31,6 +31,7 @@ import javax.swing.event.MenuListener;
 import exceptions.DuplicateConvoException;
 
 public class ConversationView extends JPanel{
+    private static final long serialVersionUID = 1L;
     private static JFrame frame;
     private static JTabbedPane tabby;
     private static JMenuBar menuBar;

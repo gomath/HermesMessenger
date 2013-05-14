@@ -1,72 +1,59 @@
 package client;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
 import exceptions.InvalidUsernameException;
 
 public class ChatClient {
-    private final GUIThread guiThread;
     private static User user;
     
+    /**
+     * Runs a GUIThread
+     */
     public ChatClient(){
-        //this.gui = new UserGUI();
-        GUIThread guiThread = new GUIThread();
-        this.guiThread = guiThread;
-        System.out.println("starting");
+        GUIThread guiThread = new GUIThread(user);
         new Thread(guiThread).start();
     }
-    
+    /**
+     * Sets the user instance variable, based on the desired username, color and socket
+     * @param username a String that is the user's username
+     * @param color the desired color (as a String) for the user's GUI theme
+     * @param socket the Socket object it will use to communicate with the server
+     */
     public static void setUser(String username, String color, Socket socket){
         user = new User(username, color, socket);
     }
     
-    public static boolean attemptLogin(String IP, String port, String username, String color) throws UnknownHostException, IOException, SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException{
-        System.out.println(username + "attempting login");
+    /**
+     * attempts to log in the user, will throw exceptions based on potential problems.
+     * @param IP the String IP address the server should be located at
+     * @param port the String port, which should be a number, to connect to at the server's IP
+     * @param username the String desired username for the client
+     * @param color the String representing the chosen color from the GUI dropdown
+     * @throws UnknownHostException - for invalid IP address
+     * @throws IOException - for problems with the Socket
+     * @throws InvalidUsernameException - when the username is not <= 10 characters and only a-zA-Z
+     * @throws NumberFormatException - when the port String is not actually a valid port number,
+     * or if it's outside the specified range of valid port values, which is between 0 and 65535, inclusive
+     */
+    public static void attemptLogin(String IP, String port, String username, String color) throws UnknownHostException, IOException{
         Socket socket = new Socket(IP, Integer.parseInt(port));
-        System.out.println("socket made " + socket.toString());
         int i=0;
+        //check that each character in the username is a letter
         for(char c:username.toCharArray()){
             i++;
             if(!Character.isLetter(c) || i>10){
                 throw new InvalidUsernameException();
             }
         }
-        //java.lang.reflect.Field field = Color.class.getField("yellow");
-        //Color colorObj = (Color)field.get(null);
-        /*
+        //set the user attribute of the ChatClient
         setUser(username, color, socket);
-        user.login();
-        */
-        PrintWriter out = new PrintWriter(socket.getOutputStream());
-        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        out.println("-l "+username+" "+color);
-        out.flush();
-        for (String line =in.readLine(); line!=null; line=in.readLine()) {
-            System.out.println("CLIENT INBOX: " + line);
-            String [] tokens = line.split(" ");
-            if(tokens[0].equals("-i")) {
-                in.close();
-                out.close();
-                return false;
-            
-            }
-            System.out.println("starting main");
-            setUser(username, color, socket);
-            user.handleRequest(line);
-            //user.login()
-            user.main();
-            return true;
-            
-        }
-        /*
-        System.out.println("starting main");
+        
+        //run main to accept messages
         user.main();
-        */
-        return false;
+        //send a login message
+        User.login();        
     }
 }

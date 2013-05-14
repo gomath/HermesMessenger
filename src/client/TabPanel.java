@@ -14,6 +14,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 public class TabPanel extends JPanel {
+    private static final long serialVersionUID = 1L;
     private Conversation convo;
     private DefaultListModel historyModel;
     private JScrollPane historyScroll;
@@ -112,6 +113,8 @@ public class TabPanel extends JPanel {
      *
      */
     private class MessageRenderer extends DefaultListCellRenderer {
+        private static final long serialVersionUID = 1L;
+
         public Component getListCellRendererComponent( JList list, Object value, int index, boolean isSelected, boolean cellHasFocus ) {  
             Component c = super.getListCellRendererComponent( list, value, index, isSelected, cellHasFocus );  
             Color color = ConversationView.colorMap.get(convo.getMessages().get(index).getSender().getColor());
