@@ -18,20 +18,7 @@ import org.junit.Test;
  */
 public class ChatServerNoDiditTest {
 
-    @Test
-    /**
-     * Tests that login message from client is handled appropriately
-     */
-    public void loginTest() throws IOException, InterruptedException {
-        Socket socket = new Socket();
-        ArrayList<ServerMessage> message = ChatServer.handleClientRequest("-l guillermo black",socket);
-        for(ServerMessage msg: message) {
-            System.out.println(msg.getText());
-        }
-        socket.close();
-    }
-    
-   //@Test
+   @Test
     /**
      * test multiple users?
      */
@@ -76,10 +63,10 @@ public class ChatServerNoDiditTest {
                 System.out.println(line);
         
         }
-        socket.close();
+        //socket.close();
     }
     
-    @Test
+    //@Test
     /**
      * Makes sure no exceptions are thrown
      * @throws UnknownHostException
@@ -113,7 +100,7 @@ public class ChatServerNoDiditTest {
         String logout = "-q gomath\n";
         out.print(logout);
         out.flush();
-        socket.close(); 
+        //socket.close(); 
        
         
     } 
