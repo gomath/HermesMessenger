@@ -6,8 +6,8 @@ import java.net.UnknownHostException;
 
 import javax.swing.SwingUtilities;
 
-import client.GUI.UserGUI;
-import client.User.User;
+import client.gui.UserGUI;
+import client.user.User;
 
 import exceptions.InvalidUsernameException;
 

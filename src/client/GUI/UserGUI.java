@@ -1,8 +1,8 @@
-package client.GUI;
+package client.gui;
 
 import javax.swing.JFrame;
 
-import client.User.User;
+import client.user.User;
 
 public class UserGUI  extends JFrame {
     private static final long serialVersionUID = 1L;
