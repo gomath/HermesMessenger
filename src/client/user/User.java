@@ -21,12 +21,13 @@ public class User {
     private String username;
     private String color;
     private Socket socket;
+    private UserGUI gui;
     private static ConcurrentHashMap<String, UserInfo> onlineUsers;
-    private static Conversation activeConvo;
     private static ConcurrentHashMap<String, Conversation> myConvos;
     private static ConcurrentHashMap<String, Conversation> inactiveConvos;
     private static PrintWriter out;
-    private static LoginView loginView;
+    private LoginView loginView;
+    private ConversationView convoView;
     
     
     /**
@@ -35,10 +36,11 @@ public class User {
      * @param color a Color representing the User's color preference
      * @param socket a Socket that corresponds to the User's connection
      */
-    public User(String username1, String color1, Socket socket1){
-        username = username1;
-        color = color1;
-        socket = socket1;
+    public User(String username1, String color1, Socket socket1, UserGUI gui){
+        this.username = username1;
+        this.color = color1;
+        this.socket = socket1;
+        this.gui = gui;
         onlineUsers = new ConcurrentHashMap<String, UserInfo>();
         myConvos = new ConcurrentHashMap<String, Conversation>();
         inactiveConvos = new ConcurrentHashMap<String, Conversation>();
@@ -50,7 +52,7 @@ public class User {
     }
     
     public void main() throws IOException{
-        ClientThread clientThread = new ClientThread(socket);
+        ClientThread clientThread = new ClientThread(this.socket, this);
         new Thread(clientThread).start();
     }
     
@@ -75,7 +77,10 @@ public class User {
             in.close();
         }
     }
-    
+    /**
+     * handles requests from the server
+     * @param input, the received message from the server
+     */
     public void handleRequest(String input) {
         String[] tokens = input.split(" ");
         if (input.length()==0){
@@ -85,7 +90,7 @@ public class User {
             Runnable openConvoView = new Runnable() {
                 public void run(){
                     System.out.println(Thread.currentThread().getId());
-                    UserGUI.openConversationView();
+                    gui.openConversationView();
                 }
             };
             SwingUtilities.invokeLater(openConvoView);
@@ -165,7 +170,6 @@ public class User {
         }
     }
     
-    
     /**
      * Actually send a String to the server
      * @param text the String to send
@@ -211,7 +215,11 @@ public class User {
         return sendMessageToServer("-c " + convo.getConvoID() + "-u " + 
                 this.username + " -t " + text);
     }
-    
+
+    /**
+     * updates conversation with new message
+     * @param input, message from the server
+     */
     public void updateConvo(String input) {
         //Parse the message data into appropriate fields
         boolean convo_id = false;
@@ -263,8 +271,12 @@ public class User {
         SwingUtilities.invokeLater(update);
     }
     
+    /**
+     * creates login message to send to server
+     * @return login message
+     */
     public String login(){
-        sendMessageToServer("-l " + this.username + " " + this.color.toString());
+        sendMessageToServer("-l " + username + " " + color.toString());
         return "";
     }
     
@@ -272,7 +284,7 @@ public class User {
      * Tell the server to disconnect the user
      */
     public void quit(){
-        UserGUI.openLoginView();
+        this.gui.openLoginView();
         for (Conversation convo : myConvos.values()) {
             this.closeConvo(convo);
         }
@@ -284,7 +296,6 @@ public class User {
      * @param the object to set the variable to
      */
     public static void setActiveConvo(Conversation convo){
-        activeConvo = convo;
     }
     
     /**
@@ -327,7 +338,12 @@ public class User {
     public static ConcurrentHashMap<String, Conversation> getInactiveConvos(){
         return inactiveConvos;
     }
-    public static void addNewMyConvo(Conversation convo){
+    
+    /**
+     * adds a newly created conversation
+     * @param convo, the new conversation to be added
+     */
+    public void addNewMyConvo(Conversation convo){
         checkDuplicateConvo(convo.getConvoID());
         if (inactiveConvos.keySet().contains(convo.getConvoID())) {
             myConvos.put(convo.getConvoID(), inactiveConvos.get(convo.getConvoID()));
@@ -339,20 +355,26 @@ public class User {
         //update tab from GUI thread
         final class updateRunnable implements Runnable {
             private Conversation convo;
+            private ConversationView view;
             
-            public updateRunnable(Conversation convo1){
+            public updateRunnable(Conversation convo1, ConversationView view1){
                 convo = convo1;
+                view = view1;
             }
             public void run(){
                 System.out.println(Thread.currentThread().getId());
-                ConversationView.updateTabs();
+                view.updateTabs();
                 ConversationView.fillHistory(convo.getConvoID());
             }  
         }
-        Runnable update = new updateRunnable(convo);
+        Runnable update = new updateRunnable(convo, this.convoView);
         SwingUtilities.invokeLater(update);      
     }
     
+    /**
+     * removes conversation when it has been closed
+     * @param convo the conversation to be removed
+     */
     public static void removeMyConvo(Conversation convo){
         final class updateRunnable implements Runnable {
             private Conversation convo;
@@ -372,6 +394,10 @@ public class User {
         myConvos.remove(convo.getConvoID());
     }
     
+    /**
+     * checks conversation id to make sure duplicates aren't created
+     * @param convoID the potential new conversation id
+     */
     public static void checkDuplicateConvo(String convoID){
         for (String ID: myConvos.keySet()){
             if(convoID.equals(ID)){
@@ -379,9 +405,21 @@ public class User {
             }
         }
     }
-    public static void setLoginView(LoginView login){
-        loginView = login;
-    }
     
+    /**
+     * sets login view
+     * @param login the loginview
+     */
+    public void setLoginView(LoginView login){
+        System.out.println("try again " + login);
+        this.loginView = login;
+    }
+    /**
+     * sets login view
+     * @param login the loginview
+     */
+    public void setConversationView(ConversationView convo){
+        this.convoView = convo;
+    }
     
 }

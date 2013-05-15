@@ -8,16 +8,18 @@ import java.net.UnknownHostException;
 
 import org.junit.Test;
 
+import client.gui.UserGUI;
+
 public class UserTest {
     @Test
     public void test() {
         String username1 = "jenn";
         String color1 = "orange";
             Socket socket1 = new Socket();
-            User user = new User(username1, color1, socket1);
+            User user = new User(username1, color1, socket1, null);
             assertEquals(user.getUsername(), username1);
 
-            User user2 = new User("dan", color1, socket1);
+            User user2 = new User("dan", color1, socket1, null);
 
             System.out.println(user.getUsername());
             System.out.println(user2.getUsername());

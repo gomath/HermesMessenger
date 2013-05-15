@@ -23,9 +23,11 @@ public class TabPanel extends JPanel {
     private DefaultListModel historyModel;
     private JScrollPane historyScroll;
     private JList history;
+    private final User user;
     
-    public TabPanel(Conversation convo) {
+    public TabPanel(Conversation convo, User user) {
         this.convo = convo;
+        this.user = user;
         
         //CONERSATION PANEL
         makePanel();    
@@ -53,7 +55,7 @@ public class TabPanel extends JPanel {
                 String msg = message.getText();
                 if (!msg.equals("")) {
                     message.setText("");
-                    User.addMsgToConvo(convo, msg);
+                    user.addMsgToConvo(convo, msg);
                     showMessage();
                 }
             }
@@ -68,7 +70,7 @@ public class TabPanel extends JPanel {
                 String msg = message.getText();
                 if (!msg.equals("")) {
                     message.setText("");
-                    User.addMsgToConvo(convo, msg);
+                    user.addMsgToConvo(convo, msg);
                     showMessage();
                 }
             }
