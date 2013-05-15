@@ -61,7 +61,7 @@ public class ChatServerTest {
     public void sendMessageTest() throws IOException, InterruptedException {
         Socket socket = new Socket();
         ArrayList<ServerMessage> message = 
-                ChatServer.handleClientRequest("-c banana orange -u banana -t orange you glad I didn't say banana?", socket);
+                ChatServer.handleClientRequest("-s banana orange -u banana", socket);
         
         for(ServerMessage msg: message) {
             System.out.println(msg.getText());
