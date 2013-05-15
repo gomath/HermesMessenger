@@ -1,4 +1,4 @@
-package client.GUI;
+package client.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -29,10 +29,10 @@ import javax.swing.UIManager;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
-import client.User.Conversation;
-import client.User.Message;
-import client.User.User;
-import client.User.UserInfo;
+import client.user.Conversation;
+import client.user.Message;
+import client.user.User;
+import client.user.UserInfo;
 import exceptions.DuplicateConvoException;
 
 public class ConversationView extends JPanel{
