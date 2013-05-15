@@ -9,7 +9,9 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 import java.net.ConnectException;
+import java.net.Socket;
 import java.net.UnknownHostException;
 
 import javax.swing.DefaultListCellRenderer;
@@ -25,7 +27,10 @@ import javax.swing.SwingUtilities;
 import client.ChatClient;
 
 import exceptions.InvalidUsernameException;
-
+/**
+ * Creates the login view that initiates a session for a user
+ *
+ */
 public class LoginView extends JFrame{
     private static final long serialVersionUID = 1L;
     private final JTextField ipAddress;
@@ -35,8 +40,14 @@ public class LoginView extends JFrame{
     private final JButton submitButton;
     private final JLabel hermes;
     private final JLabel messenger;
-
-    public LoginView() {
+    private final ChatClient client;
+    private final UserGUI gui;
+    /**
+     * creates the view and fills with the appropriate content
+     */
+    public LoginView(final ChatClient client, final UserGUI gui) {
+        this.client = client;
+        this.gui = gui;
         setTitle("Hermes Messenger Login");
         setBackground(new Color(96, 80, 220));
         setPreferredSize(new Dimension(300,300));
@@ -150,7 +161,13 @@ public class LoginView extends JFrame{
             public void actionPerformed(ActionEvent arg0) {
                 try {
                     System.out.println("in the gui: " + Thread.currentThread().getId());
-                    ChatClient.attemptLogin(ipAddress.getText(), portNumber.getText(), username.getText(), (String) colorDropDown.getSelectedItem());                        
+                    client.attemptLogin(ipAddress.getText(), portNumber.getText(), username.getText(), (String) colorDropDown.getSelectedItem(), gui);
+                    gui.setUser(client.getUser());
+                    gui.setUserView();
+
+                    System.out.println("start");
+                    client.runUser();
+                    System.out.println("end");
                 } catch (NumberFormatException e1) {
                     JOptionPane.showMessageDialog(getContentPane(), "Invalid port number");
                     portNumber.setText("Port");
@@ -164,7 +181,7 @@ public class LoginView extends JFrame{
                     JOptionPane.showMessageDialog(getContentPane(), "Invalid IP Address");
                     ipAddress.setText("IP Address");
                 } catch (Exception e5) {
-                    JOptionPane.showMessageDialog(getContentPane(), e5);
+                    JOptionPane.showMessageDialog(getContentPane(), e5.getStackTrace());
                     ipAddress.setText("IP Address");
                     portNumber.setText("Port");
                     username.setText("Username");
@@ -197,8 +214,13 @@ public class LoginView extends JFrame{
                 .addComponent(submitButton));
         getRootPane().setDefaultButton(submitButton);
         pack();
+
+        setVisible(true);
     }
-    
+    /**
+     * creates the frame
+     * @param args
+     */
     public void main(final String[] args) {
         //set the visibility to true
         final class loginRunnable implements Runnable {
@@ -234,4 +256,5 @@ public class LoginView extends JFrame{
         Runnable close = new closeRunnable(this);
         SwingUtilities.invokeLater(close);
     }
+
 }

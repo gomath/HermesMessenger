@@ -2,30 +2,57 @@ package client.gui;
 
 import javax.swing.JFrame;
 
+import client.ChatClient;
 import client.user.User;
-
+/**
+ * initializes the gui, and manages transitions between
+ * the login and conversation views
+ *
+ */
 public class UserGUI  extends JFrame {
     private static final long serialVersionUID = 1L;
-    private static LoginView login = null;
-    private static ConversationView convo = null;
-    private static User user;
-    public UserGUI(User user1) {
+    private LoginView login = null;
+    private ConversationView convo = null;
+    private User user;
+    private final ChatClient client;
+    
+    /**
+     * initializes the login view 
+     */
+    public UserGUI(User user, ChatClient client) {
+        this.user = user;
+        this.client = client;
+        this.login = new LoginView(this.client, this);
+        System.out.println(this.login + "end");
+        //user.setLoginView(this.login);
+        this.login.main(new String[]{});
+    }
+    
+    /**
+     * called to close the login view and start conversation view
+     */
+    public void openConversationView() {
+        this.login.close();
+        //this.convo = new ConversationView(user, this);
+        ConversationView.main(this.user, this);
+    }
+    
+    /**
+     * called to close conversation view and reopen the login view
+     */
+    public void openLoginView() {
+        ConversationView.close();
+        this.login = new LoginView(this.client, this);
+        user.setLoginView(this.login);
+        //login.main(new String[]{});
+    }
+    public void setUser(User user1) {
         user = user1;
-        System.out.println("haven't made login!" + Thread.currentThread().getId());
-        login = new LoginView();
-        System.out.println("just made login!");
-        User.setLoginView(login);
-        System.out.println("starting login.main");
-        login.main(new String[]{});
     }
-    public static void openConversationView() {
-        login.close();
-        convo = new ConversationView();
-        convo.main(new String[]{});
+    public void setUserView() {
+        user.setLoginView(this.login);
     }
-    public static void openLoginView() {
-        convo.close();
-        login = new LoginView();
-        login.main(new String[]{});
+    public void setConvoView(ConversationView view) {
+        convo = view;
     }
 }

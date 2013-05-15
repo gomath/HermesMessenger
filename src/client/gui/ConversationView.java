@@ -47,9 +47,13 @@ public class ConversationView extends JPanel{
     private static JList list;
     private static ConcurrentHashMap<String, TabPanel> tabMap = new ConcurrentHashMap<String, TabPanel>();
     public final static ConcurrentHashMap<String, Color> colorMap = new ConcurrentHashMap<String, Color>();
-
-    public ConversationView() {
+    public final User user;
+    public final UserGUI gui;
+    
+    public ConversationView(final User user, final UserGUI gui) {
         super(new GridLayout(1, 1));
+        this.user = user;
+        this.gui = gui;
 
         //Make color map
         colorMap.put("red", Color.red);
@@ -65,9 +69,9 @@ public class ConversationView extends JPanel{
         
         //MENU
         menuBar = new JMenuBar();
-        menuBar.setBackground(colorMap.get(User.getColor()));
-        file = new JMenu(User.getUsername());
-        file.setBackground(colorMap.get(User.getColor()));
+        menuBar.setBackground(colorMap.get(user.getColor()));
+        file = new JMenu(user.getUsername());
+        file.setBackground(colorMap.get(user.getColor()));
         file.addMenuListener(new MenuListener() {
             public void menuCanceled(MenuEvent arg0) {}
             @Override
@@ -87,7 +91,7 @@ public class ConversationView extends JPanel{
         logout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                User.quit();
+                user.quit();
             }
         });
         file.add(logout);
@@ -96,7 +100,7 @@ public class ConversationView extends JPanel{
         closeConvo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                User.closeConvo(((TabPanel) tabby.getSelectedComponent()).getConvo());
+                user.closeConvo(((TabPanel) tabby.getSelectedComponent()).getConvo());
             }
         });
         file.add(closeConvo);
@@ -116,6 +120,12 @@ public class ConversationView extends JPanel{
         tabby.addTab("New", newPanel);       
         add(tabby);
         tabby.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+        
+      //Turn off metal's use of bold fonts
+//        UIManager.put("swing.boldMetal", Boolean.FALSE);
+//        System.out.println("before create");
+//        createAndShowGUI(user, gui);
+//        System.out.println("after create");
     }
     
     /**
@@ -123,10 +133,10 @@ public class ConversationView extends JPanel{
      * @param convoID
      * @return new name
      */
-    public static String parseConvoID(String convoID) {
+    public String parseConvoID(String convoID) {
         StringBuilder sb = new StringBuilder();
         for (String un:convoID.split(" ")) {
-            if (!un.equals(User.getUsername())) {
+            if (!un.equals(user.getUsername())) {
                 sb.append(un);
                 sb.append(" ");
             }
@@ -152,7 +162,7 @@ public class ConversationView extends JPanel{
             public void actionPerformed(ActionEvent arg0) {
                 Object[] usernames = list.getSelectedValues();
                 try {
-                    User.startConvo(usernames);
+                    user.startConvo(usernames);
                     tabby.setSelectedIndex(tabby.getTabCount()-1);
                 } catch (DuplicateConvoException e) {
                     JOptionPane.showMessageDialog(getRootPane(), "Conversation already exists");
@@ -170,7 +180,7 @@ public class ConversationView extends JPanel{
                 for (Object un: usernames) {
                     participants.put((String) un, User.getOnlineUsers().get(un));
                 }
-                participants.put(User.getUsername(), new UserInfo(User.getUsername(), User.getColor()));
+                participants.put(user.getUsername(), new UserInfo(user.getUsername(), user.getColor()));
                 Conversation convo = new Conversation(participants);
                 if (User.getInactiveConvos().keySet().contains(convo.getConvoID())) {
                     //SHOW CONVERSATION HISTORY
@@ -224,13 +234,13 @@ public class ConversationView extends JPanel{
     /**
      * Adds tabs for each conversation if they don't already exist
      */
-    public static void updateTabs() {
+    public void updateTabs() {
         for (Conversation convo : User.getMyConvos().values()) {
             if (!tabMap.keySet().contains(convo.getConvoID())) {
                 String convoID = convo.getConvoID();
-                TabPanel panel = new TabPanel(convo);
-                tabby.addTab(parseConvoID(convoID), panel);
-                JLabel cid = new JLabel(parseConvoID(convoID));
+                TabPanel panel = new TabPanel(convo, user);
+                tabby.addTab(this.parseConvoID(convoID), panel);
+                JLabel cid = new JLabel(this.parseConvoID(convoID));
                 cid.setName(convoID);
                 tabby.setTabComponentAt(tabby.getTabCount()-1, cid);
                 //tabby.setBackgroundAt(tabby.getTabCount()-1, panel.getColor());
@@ -280,13 +290,16 @@ public class ConversationView extends JPanel{
      * this method should be invoked from
      * the event dispatch thread.
      */
-    private static void createAndShowGUI() {
+    private static void createAndShowGUI(User user, UserGUI gui) {
         //Create and set up the window.
         frame = new JFrame("Hermes Messenger");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         //Add content to the window.
-        frame.add(new ConversationView(), BorderLayout.CENTER);
+        ConversationView convoView = new ConversationView(user, gui);
+        gui.setConvoView(convoView);
+        user.setConversationView(convoView);
+        frame.add(convoView, BorderLayout.CENTER);
         frame.setJMenuBar(menuBar);
         
         //Display the window.
@@ -294,14 +307,14 @@ public class ConversationView extends JPanel{
         frame.setVisible(true);
     }
      
-    public void main(String[] args) {
+    public static void main(final User user1, final UserGUI gui1) {
         //Schedule a job for the event dispatch thread:
         //creating and showing this application's GUI.
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 //Turn off metal's use of bold fonts
                 UIManager.put("swing.boldMetal", Boolean.FALSE);
-                createAndShowGUI();
+                createAndShowGUI(user1, gui1);
             }
         });
     }
@@ -309,7 +322,7 @@ public class ConversationView extends JPanel{
     /**
      * closes the frame
      */
-    public void close() {
+    public static void close() {
         frame.setVisible(false);
         frame.dispose();
     }

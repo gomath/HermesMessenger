@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 
+/**
+ * creates new thread to run the server
+ *
+ */
 public class ChatServerThread extends Thread {
     Socket socket;
     
@@ -11,7 +15,9 @@ public class ChatServerThread extends Thread {
         socket = socky;
     }
     
-
+    /**
+     * handles socket connection for the server
+     */
     @Override
     public void run() {
         
@@ -20,7 +26,6 @@ public class ChatServerThread extends Thread {
         } catch (SocketException e) {
             return;
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } finally {
             try {

@@ -52,19 +52,24 @@ public class Conversation {
      * @param participants, a HashMap from String usernames to corresponding
      * UserInfo objects. 
      * @return a String that is an alphabetized list of the usernames,
-     * with spaces in between each.
+     * with spaces after each (including the last one)
      */
     public String alphabetizeHashMap(ConcurrentHashMap<String, UserInfo> participants){
         List<String> userList = new ArrayList<String>();
+        //make a list of the usernames
         for(String name : participants.keySet()){
             userList.add(name);
         }
-        java.util.Collections.sort(userList); //alphabetize
+        java.util.Collections.sort(userList); //alphabetize the list
         StringBuilder convoID = new StringBuilder();
+        
+        //add them alphabetically to a StringBuilder
         for(String userName : userList){
             convoID.append(userName);
             convoID.append(' ');
         }
+        
+        //return the alphabetical string
         return convoID.toString();
     }
 }

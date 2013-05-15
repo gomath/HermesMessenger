@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 
 import javax.swing.SwingUtilities;
 
+import client.gui.LoginView;
 import client.gui.UserGUI;
 import client.user.User;
 
@@ -15,19 +16,35 @@ import exceptions.InvalidUsernameException;
  * Wraps together the GUI and User classes. Starts a GUI and logs a user in.
  */
 public class ChatClient {
-    private static User user;
+    private User user;
+    //=private static UserGUI gui;
     
     /**
      * Runs a GUIThread
      */
     public ChatClient(){
-        Runnable startGui = new Runnable() {
-            public void run(){
-                System.out.println(Thread.currentThread().getId());
-                new UserGUI(user);
+        final class startGui implements Runnable {
+            private User user;
+            private ChatClient client;
+            
+            public startGui(User user, ChatClient client){
+                this.user = user;
+                this.client = client;
             }
-        };
-        SwingUtilities.invokeLater(startGui);
+            public void run(){
+                new UserGUI(user, client);
+            }  
+        }
+        Runnable start = new startGui(this.user, this);
+        SwingUtilities.invokeLater(start);
+//        
+//        Runnable startGui = new Runnable() {
+//            public void run(){
+//                System.out.println(Thread.currentThread().getId());
+//                newUserGUI();
+//            }
+//        };
+//        SwingUtilities.invokeLater(startGui);
         //GUIThread guiThread = new GUIThread(user);
         //new Thread(guiThread).start();
     }
@@ -37,8 +54,8 @@ public class ChatClient {
      * @param color the desired color (as a String) for the user's GUI theme
      * @param socket the Socket object it will use to communicate with the server
      */
-    public static void setUser(String username, String color, Socket socket){
-        user = new User(username, color, socket);
+    public void setUser(String username, String color, Socket socket, UserGUI gui){
+        this.user = new User(username, color, socket, gui);
     }
     
     /**
@@ -53,7 +70,7 @@ public class ChatClient {
      * @throws NumberFormatException - when the port String is not actually a valid port number,
      * or if it's outside the specified range of valid port values, which is between 0 and 65535, inclusive
      */
-    public static void attemptLogin(String IP, String port, String username, String color) throws UnknownHostException, IOException{
+    public void attemptLogin(String IP, String port, String username, String color, UserGUI gui) throws UnknownHostException, IOException{
         Socket socket = new Socket(IP, Integer.parseInt(port));
         int i=0;
         //check that each character in the username is a letter
@@ -64,12 +81,18 @@ public class ChatClient {
             }
         }
         //set the user attribute of the ChatClient
-        setUser(username, color, socket);
+        this.setUser(username, color, socket, gui);
         
+                
+    }
+    public User getUser(){
+        return this.user;
+    }
+    public void runUser() throws IOException{
         //run main to accept messages
-        user.main();
+        this.user.main();
         //send a login message
-        User.login();        
+        this.user.login();
     }
     
     public static void main(String[] args){
