@@ -25,7 +25,10 @@ import javax.swing.SwingUtilities;
 import client.ChatClient;
 
 import exceptions.InvalidUsernameException;
-
+/**
+ * Creates the login view that initiates a session for a user
+ *
+ */
 public class LoginView extends JFrame{
     private static final long serialVersionUID = 1L;
     private final JTextField ipAddress;
@@ -35,7 +38,9 @@ public class LoginView extends JFrame{
     private final JButton submitButton;
     private final JLabel hermes;
     private final JLabel messenger;
-
+    /**
+     * creates the view and fills with the appropriate content
+     */
     public LoginView() {
         setTitle("Hermes Messenger Login");
         setBackground(new Color(96, 80, 220));
@@ -198,7 +203,10 @@ public class LoginView extends JFrame{
         getRootPane().setDefaultButton(submitButton);
         pack();
     }
-    
+    /**
+     * creates the frame
+     * @param args
+     */
     public void main(final String[] args) {
         //set the visibility to true
         final class loginRunnable implements Runnable {

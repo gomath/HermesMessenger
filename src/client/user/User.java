@@ -22,7 +22,6 @@ public class User {
     private static String color;
     private static Socket socket;
     private static ConcurrentHashMap<String, UserInfo> onlineUsers;
-    private static Conversation activeConvo;
     private static ConcurrentHashMap<String, Conversation> myConvos;
     private static ConcurrentHashMap<String, Conversation> inactiveConvos;
     private static PrintWriter out;
@@ -76,6 +75,10 @@ public class User {
         }
     }
     
+    /**
+     * handles requests from the server
+     * @param input, the received message from the server
+     */
     static void handleRequest(String input) {
         String[] tokens = input.split(" ");
         if (input.length()==0){
@@ -165,7 +168,6 @@ public class User {
         }
     }
     
-    
     /**
      * Actually send a String to the server
      * @param text the String to send
@@ -212,6 +214,10 @@ public class User {
                 username + " -t " + text);
     }
     
+    /**
+     * updates conversation with new message
+     * @param input, message from the server
+     */
     public static void updateConvo(String input) {
         //Parse the message data into appropriate fields
         boolean convo_id = false;
@@ -263,6 +269,10 @@ public class User {
         SwingUtilities.invokeLater(update);
     }
     
+    /**
+     * creates login message to send to server
+     * @return login message
+     */
     public static String login(){
         sendMessageToServer("-l " + username + " " + color.toString());
         return "";
@@ -284,7 +294,6 @@ public class User {
      * @param the object to set the variable to
      */
     public static void setActiveConvo(Conversation convo){
-        activeConvo = convo;
     }
     
     /**
@@ -327,6 +336,11 @@ public class User {
     public static ConcurrentHashMap<String, Conversation> getInactiveConvos(){
         return inactiveConvos;
     }
+    
+    /**
+     * adds a newly created conversation
+     * @param convo, the new conversation to be added
+     */
     public static void addNewMyConvo(Conversation convo){
         checkDuplicateConvo(convo.getConvoID());
         if (inactiveConvos.keySet().contains(convo.getConvoID())) {
@@ -353,6 +367,10 @@ public class User {
         SwingUtilities.invokeLater(update);      
     }
     
+    /**
+     * removes conversation when it has been closed
+     * @param convo the conversation to be removed
+     */
     public static void removeMyConvo(Conversation convo){
         final class updateRunnable implements Runnable {
             private Conversation convo;
@@ -372,6 +390,10 @@ public class User {
         myConvos.remove(convo.getConvoID());
     }
     
+    /**
+     * checks conversation id to make sure duplicates aren't created
+     * @param convoID the potential new conversation id
+     */
     public static void checkDuplicateConvo(String convoID){
         for (String ID: myConvos.keySet()){
             if(convoID.equals(ID)){
@@ -379,6 +401,11 @@ public class User {
             }
         }
     }
+    
+    /**
+     * sets login view
+     * @param login the loginview
+     */
     public static void setLoginView(LoginView login){
         loginView = login;
     }

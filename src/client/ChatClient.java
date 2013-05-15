@@ -24,7 +24,7 @@ public class ChatClient {
         Runnable startGui = new Runnable() {
             public void run(){
                 System.out.println(Thread.currentThread().getId());
-                new UserGUI(user);
+                new UserGUI();
             }
         };
         SwingUtilities.invokeLater(startGui);
