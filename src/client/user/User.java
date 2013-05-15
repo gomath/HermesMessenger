@@ -18,9 +18,9 @@ import client.gui.UserGUI;
 import exceptions.DuplicateConvoException;
 
 public class User {
-    private static String username;
-    private static String color;
-    private static Socket socket;
+    private String username;
+    private String color;
+    private Socket socket;
     private static ConcurrentHashMap<String, UserInfo> onlineUsers;
     private static Conversation activeConvo;
     private static ConcurrentHashMap<String, Conversation> myConvos;
@@ -59,7 +59,7 @@ public class User {
      * @param socket socket where the user is connected
      * @throws IOException if connection has an error or terminates unexpectedly
      */
-    public static void handleConnection(Socket socket) throws IOException {
+    public void handleConnection(Socket socket) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
@@ -67,7 +67,7 @@ public class User {
             for (String line =in.readLine(); line!=null; line=in.readLine()) {
                 if (line.length() != 0) {
                     System.out.println("CLIENT INBOX: " + line);
-                    handleRequest(line);
+                    this.handleRequest(line);
                 }
             }
         } finally {        
@@ -76,7 +76,7 @@ public class User {
         }
     }
     
-    static void handleRequest(String input) {
+    public void handleRequest(String input) {
         String[] tokens = input.split(" ");
         if (input.length()==0){
             ;
@@ -134,8 +134,8 @@ public class User {
                    break; 
                 }
                 else{
-                   if (tokens[i].equals(username)) {
-                       map.put(tokens[i], new UserInfo(username, color)); 
+                   if (tokens[i].equals(this.username)) {
+                       map.put(tokens[i], new UserInfo(this.username, this.color)); 
                    } else {
                        map.put(tokens[i], onlineUsers.get(tokens[i])); 
                    }
@@ -181,24 +181,24 @@ public class User {
      * Tell the server to start a new conversation
      * @param convo the Conversation to start
      */
-    public static String startConvo(Object[] usernames){
+    public String startConvo(Object[] usernames){
         ConcurrentHashMap<String, UserInfo> participants = new ConcurrentHashMap<String, UserInfo>();
         for (Object un: usernames) {
             participants.put((String) un, onlineUsers.get(un));
         }
-        participants.put(username, new UserInfo(username, color));
+        participants.put(this.username, new UserInfo(this.username, this.color));
         Conversation convo = new Conversation(participants);
         addNewMyConvo(convo);
-        return sendMessageToServer("-s " + convo.getConvoID() + "-u " + username);
+        return sendMessageToServer("-s " + convo.getConvoID() + "-u " + this.username);
     }
     
     /**
      * Tell the server to end a conversation
      * @param convo the Conversation to end
      */
-    public static String closeConvo(Conversation convo){
+    public String closeConvo(Conversation convo){
         removeMyConvo(convo);
-        return sendMessageToServer("-x " + convo.getConvoID() + "-u " + username);
+        return sendMessageToServer("-x " + convo.getConvoID() + "-u " + this.username);
     }
     
     /**
@@ -206,13 +206,13 @@ public class User {
      * @param convo the Conversation to add the message to
      * @param text the Message
      */
-    public static String addMsgToConvo(Conversation convo, String text){
-        convo.addMessage(new Message(new UserInfo(username, color), convo, text));
+    public String addMsgToConvo(Conversation convo, String text){
+        convo.addMessage(new Message(new UserInfo(this.username, this.color), convo, text));
         return sendMessageToServer("-c " + convo.getConvoID() + "-u " + 
-                username + " -t " + text);
+                this.username + " -t " + text);
     }
     
-    public static void updateConvo(String input) {
+    public void updateConvo(String input) {
         //Parse the message data into appropriate fields
         boolean convo_id = false;
         StringBuilder ci = new StringBuilder();
@@ -241,10 +241,10 @@ public class User {
             }
         }
         Conversation convo = myConvos.get(ci.toString());
-        if (!un.toString().equals(username)) {
+        if (!un.toString().equals(this.username)) {
             convo.addMessage(new Message(onlineUsers.get(un.toString()), convo, msg.toString()));
         } else {
-            convo.addMessage(new Message(new UserInfo(username, color), convo, msg.toString()));
+            convo.addMessage(new Message(new UserInfo(this.username, this.color), convo, msg.toString()));
         } 
         
         //update tab from GUI thread
@@ -263,20 +263,20 @@ public class User {
         SwingUtilities.invokeLater(update);
     }
     
-    public static String login(){
-        sendMessageToServer("-l " + username + " " + color.toString());
+    public String login(){
+        sendMessageToServer("-l " + this.username + " " + this.color.toString());
         return "";
     }
     
     /**
      * Tell the server to disconnect the user
      */
-    public static void quit(){
+    public void quit(){
         UserGUI.openLoginView();
         for (Conversation convo : myConvos.values()) {
-            closeConvo(convo);
+            this.closeConvo(convo);
         }
-        sendMessageToServer("-q " + username);
+        sendMessageToServer("-q " + this.username);
     }
     
     /**
@@ -309,14 +309,14 @@ public class User {
      * Getter methods for various private instance variables.
      * @return the instance variable.
      */
-    public static String getUsername(){
-        return username;
+    public String getUsername(){
+        return this.username;
     }
-    public static String getColor(){
-        return color;
+    public String getColor(){
+        return this.color;
     }
-    public static Socket getSocket(){
-        return socket;
+    public Socket getSocket(){
+        return this.socket;
     }
     public static ConcurrentHashMap<String, UserInfo> getOnlineUsers(){
         return onlineUsers;

@@ -67,6 +67,8 @@ public class ConversationTest {
     }
     //Test the alphabetizing method on both empty and nonempty hash maps
     //(partitioning the input space)
+    
+    //starting not alphabetically
     @Test
     public void alphabetizeTest() {
         participants.put("Banana", banana);
@@ -74,7 +76,34 @@ public class ConversationTest {
         participants.put("Apple", new UserInfo("Apple", "Red"));
         Conversation convo = new Conversation(participants);
         assertEquals(convo.alphabetizeHashMap(participants), "Apple Banana Orange ");
-    }    
+    }   
+    //starting alphabetically
+    @Test
+    public void alphabetizeTest2() {
+        participants.put("Apple", new UserInfo("Apple", "Red"));
+        participants.put("Banana", banana);
+        participants.put("Orange", orange);
+        Conversation convo = new Conversation(participants);
+        assertEquals(convo.alphabetizeHashMap(participants), "Apple Banana Orange ");
+    }  
+    //starting with same letter
+    @Test
+    public void alphabetizeTest3() {
+        participants.put("Apple", new UserInfo("Apple", "Red"));
+        participants.put("Anana", banana);
+        participants.put("Orange", orange);
+        Conversation convo = new Conversation(participants);
+        assertEquals(convo.alphabetizeHashMap(participants), "Anana Apple Orange ");
+    }     
+    //capital and lowercase
+    @Test
+    public void alphabetizeTest4() {
+        participants.put("Apple", new UserInfo("Apple", "Red"));
+        participants.put("banana", banana);
+        participants.put("Orange", orange);
+        Conversation convo = new Conversation(participants);
+        assertEquals(convo.alphabetizeHashMap(participants), "Apple Orange banana ");
+    }   
     @Test
     public void emptyAlphabetizeTest() {
         Conversation convo = new Conversation(participants);
