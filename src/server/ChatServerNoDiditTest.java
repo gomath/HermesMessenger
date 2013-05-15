@@ -17,6 +17,21 @@ import org.junit.Test;
  *
  */
 public class ChatServerNoDiditTest {
+    
+    @Test
+    public void runAServer() {
+        class serverThread implements Runnable {
+
+            @Override
+            public void run() {
+                ChatServer.main(new String[] {"-p","4444"});
+                
+            } 
+        }
+        serverThread myRunnableThread = new serverThread();
+        Thread myThread = new Thread(myRunnableThread);
+        myThread.start();
+    }
 
    @Test
     /**
@@ -26,21 +41,21 @@ public class ChatServerNoDiditTest {
         Socket socket1 = new Socket("localhost", 4444);
         Socket socket2 = new Socket("localhost", 4444);
         Socket socket3 = new Socket("localhost", 4444);
-        ArrayList<ServerMessage> message1 = ChatServer.handleClientRequest("-l gomath black",socket1);
-        System.out.println("gomath attempt messages:\n");
-        for(ServerMessage message: message1) {
-            System.out.println(message.getText());
-        }
-        ArrayList<ServerMessage> message2 = ChatServer.handleClientRequest("-l jtilton purple",socket2);
+        ArrayList<ServerMessage> gomathMsgs = ChatServer.handleClientRequest("-l gomath black",socket1);
+        
+ 
+        assertEquals("-f \n", gomathMsgs.get(0).getText());
+        assertEquals("-o gomath black\n", gomathMsgs.get(1).getText());
+        ArrayList<ServerMessage> jenMsgs = ChatServer.handleClientRequest("-l jtilton purple",socket2);
         System.out.println("jtilton messages: \n");
-        for(ServerMessage message: message2) {
-            System.out.println(message.getText());
-        }
-        ArrayList<ServerMessage> message3 = ChatServer.handleClientRequest("-l disanto blue", socket3);
+        
+        assertEquals("-f gomath black \n", jenMsgs.get(0).getText());
+        assertEquals("-o jtilton purple\n", jenMsgs.get(1).getText());
+        ArrayList<ServerMessage> danMsgs = ChatServer.handleClientRequest("-l disanto blue", socket3);
         System.out.println("disanto attempt messages:\n");
-        for(ServerMessage message: message3) {
-            System.out.println(message.getText());
-        }
+        
+        assertEquals("-f jtilton purple gomath black \n", danMsgs.get(0).getText());
+        assertEquals("-o disanto blue\n", danMsgs.get(1).getText());
         
     }
     
@@ -63,7 +78,7 @@ public class ChatServerNoDiditTest {
                 System.out.println(line);
         
         }
-        //socket.close();
+        socket.close();
     }
     
     //@Test
@@ -73,17 +88,7 @@ public class ChatServerNoDiditTest {
      * @throws IOException
      */
     public void runServerTest() throws UnknownHostException, IOException, InterruptedException {
-        class serverThread implements Runnable {
-
-            @Override
-            public void run() {
-                ChatServer.main(new String[] {"-p","4444"});
-                
-            } 
-        }
-        serverThread myRunnableThread = new serverThread();
-        Thread myThread = new Thread(myRunnableThread);
-        myThread.start();
+        
         String connectInfo = "-l gomath black\n";
         Socket socket = new Socket("localhost", 4444);
         PrintWriter out = new PrintWriter(socket.getOutputStream());
@@ -100,7 +105,7 @@ public class ChatServerNoDiditTest {
         String logout = "-q gomath\n";
         out.print(logout);
         out.flush();
-        //socket.close(); 
+        socket.close(); 
        
         
     } 
