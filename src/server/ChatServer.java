@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
-import client.UserInfo;
+import client.User.UserInfo;
 
 public class ChatServer {
     private final ServerSocket serverSocket;

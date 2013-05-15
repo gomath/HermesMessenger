@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
-import client.User;
+import client.User.User;
 /**
  * Partitions the input space to test handleClientRequest
  * 

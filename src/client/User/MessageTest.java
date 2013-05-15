@@ -1,10 +1,11 @@
-package client;
+package client.User;
 
 import static org.junit.Assert.*;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.Test;
+
 
 public class MessageTest {
 

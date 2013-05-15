@@ -1,8 +1,9 @@
-package client;
+package client.User;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 public class Conversation {
     private final String convoID;
