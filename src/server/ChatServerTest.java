@@ -2,20 +2,13 @@ package server;
 
 import static org.junit.Assert.*;
 
-import java.awt.Color;
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.ConnectException;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
-import client.User.User;
 /**
  * Partitions the input space to test handleClientRequest
  * 
@@ -54,18 +47,5 @@ public class ChatServerTest {
     }
     
     
-    @Test
-    /**
-     * Test 
-     */
-    public void sendMessageTest() throws IOException, InterruptedException {
-        Socket socket = new Socket();
-        ArrayList<ServerMessage> message = 
-                ChatServer.handleClientRequest("-s banana orange -u banana", socket);
-        
-        for(ServerMessage msg: message) {
-            System.out.println(msg.getText());
-        }
-    }
     
 }
