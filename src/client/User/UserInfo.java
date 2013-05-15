@@ -1,4 +1,4 @@
-package client;
+package client.User;
 
 import java.net.Socket;
 

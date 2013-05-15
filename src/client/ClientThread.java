@@ -3,6 +3,8 @@ package client;
 import java.io.IOException;
 import java.net.Socket;
 
+import client.User.User;
+
 public class ClientThread implements Runnable {
     Socket socket;
     

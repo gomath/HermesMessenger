@@ -3,7 +3,7 @@ package server;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import client.UserInfo;
+import client.User.UserInfo;
 /**
  * Object representing outgoing message from server
  *

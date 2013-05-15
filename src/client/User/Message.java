@@ -1,4 +1,5 @@
-package client;
+package client.User;
+
 
 /**
  * Object representing an instant message

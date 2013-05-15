@@ -1,4 +1,4 @@
-package client;
+package client.User;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,6 +9,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+
+import client.ClientThread;
+import client.GUI.ConversationView;
+import client.GUI.LoginView;
+import client.GUI.UserGUI;
 
 import exceptions.DuplicateConvoException;
 

@@ -1,4 +1,4 @@
-package client;
+package client.GUI;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -21,6 +21,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+
+import client.ChatClient;
 
 import exceptions.InvalidUsernameException;
 

@@ -1,4 +1,4 @@
-package client;
+package client.GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -12,6 +12,10 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+
+import client.User.Conversation;
+import client.User.Message;
+import client.User.User;
 
 public class TabPanel extends JPanel {
     private static final long serialVersionUID = 1L;
