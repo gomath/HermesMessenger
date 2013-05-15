@@ -54,7 +54,7 @@ public class ChatServerTest {
     }
     
     
-    //@Test
+    @Test
     /**
      * Test 
      */
