@@ -314,7 +314,7 @@ public class User {
      * Methods to completely replace the onlineUsers map, add one user to
      * it, or remove one user from it.
      */
-    private void setOnlineUsers(ConcurrentHashMap<String, UserInfo> userMap){
+    protected void setOnlineUsers(ConcurrentHashMap<String, UserInfo> userMap){
         onlineUsers = userMap;
     }
     public void addOnlineUser(UserInfo user){
