@@ -27,7 +27,7 @@ public class ServerMessageTest {
         recipients.add(new Socket());
         recipients.add(new Socket());
         ServerMessage sm = new ServerMessage(recipients, "I love 6.005!");
-        assertEquals("I love 6.005!", sm.getText());
+        assertEquals("I love 6.005!\n", sm.getText());
     }
     
     /**
