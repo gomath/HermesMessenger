@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
@@ -18,23 +17,31 @@ import org.junit.Test;
  *
  */
 public class ChatServerNoDiditTest {
-    
+    static ChatServer s;
     /**
      * Runs the server necessary to test server methods start convo and send message
      */
     @Test
     public void runAServer() {
-        class serverThread implements Runnable {
-
-            @Override
-            public void run() {
-                ChatServer.main(new String[] {"-p","4444"});
-                
-            } 
+        try {
+                s = new ChatServer(4444);
+            final class testThread implements Runnable {
+                private ChatServer server;
+                public testThread(ChatServer servy){
+                    server = servy;
+                }
+                public void run(){
+                    try {
+                        server.serve();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+            testThread t = new testThread(s);
+            new Thread(t).start();
+        } catch (IOException e) {;
         }
-        serverThread myRunnableThread = new serverThread();
-        Thread myThread = new Thread(myRunnableThread);
-        myThread.start();
     }
 
     @Test
@@ -64,7 +71,7 @@ public class ChatServerNoDiditTest {
         //String logout = "-q gomath\n";
         //out.print(logout);
         //out.flush();
-        //socket.close(); 
+        socket.close(); 
        
         
     } 
@@ -116,7 +123,7 @@ public class ChatServerNoDiditTest {
         out2.flush();
         
         assertEquals("-q dale", logoutConfirmed);
-
+        socket.close();
        
         
     } 
@@ -165,34 +172,37 @@ public class ChatServerNoDiditTest {
         out2.flush();
         
         //assertEquals("-q loras", logoutConfirmed);
-
+        socket.close();
        
         
     } 
     
-   @Test
+   //@Test
     /**
      * test multiple interactions - logging in, starting convo, sending msg, logging out
      */
     public void compositeTest() throws UnknownHostException, IOException {
+
         Socket socket1 = new Socket("localhost", 4444);
         Socket socket2 = new Socket("localhost", 4444);
         Socket socket3 = new Socket("localhost", 4444);
-        ArrayList<ServerMessage> gomathMsgs = ChatServer.handleClientRequest("-l gomath black",socket1);
-        
+        System.out.println("1");
+        ArrayList<ServerMessage> gomathMsgs = s.handleClientRequest("-l gomath black",socket1);
+        System.out.println("2");
  
         assertEquals("-f first black renly red \n", gomathMsgs.get(0).getText());
         assertEquals("-o gomath black\n", gomathMsgs.get(1).getText());
-        ArrayList<ServerMessage> jenMsgs = ChatServer.handleClientRequest("-l jtilton purple",socket2);
+        ArrayList<ServerMessage> jenMsgs = s.handleClientRequest("-l jtilton purple",socket2);
         System.out.println("jtilton messages: \n");
         
         assertEquals("-f first black renly red gomath black \n", jenMsgs.get(0).getText());
         assertEquals("-o jtilton purple\n", jenMsgs.get(1).getText());
-        ArrayList<ServerMessage> danMsgs = ChatServer.handleClientRequest("-l disanto blue", socket3);
+        ArrayList<ServerMessage> danMsgs = s.handleClientRequest("-l disanto blue", socket3);
         System.out.println("disanto attempt messages:\n");
         
         assertEquals("-f first black renly red jtilton purple gomath black \n", danMsgs.get(0).getText());
         assertEquals("-o disanto blue\n", danMsgs.get(1).getText());
+        System.out.println("hi");
         
     }
     

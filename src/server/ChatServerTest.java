@@ -22,7 +22,8 @@ public class ChatServerTest {
      */
     public void loginTest() throws IOException, InterruptedException {
         Socket socket = new Socket();
-        ArrayList<ServerMessage> message = ChatServer.handleClientRequest("-l guillermo black",socket);
+        ChatServer s = new ChatServer(4444);
+        ArrayList<ServerMessage> message = s.handleClientRequest("-l guillermo black",socket);
         
         //make sure appropriate things contained
         String msg1 = "-f \n";
@@ -38,7 +39,8 @@ public class ChatServerTest {
      */
     public void quitTest() throws IOException, InterruptedException {
         Socket socket = new Socket();
-        ArrayList<ServerMessage> message = ChatServer.handleClientRequest("-q username", socket);
+        ChatServer s = new ChatServer(4445);
+        ArrayList<ServerMessage> message = s.handleClientRequest("-q username", socket);
         
         String msg = "-q username\n";
         assertEquals(msg, message.get(0).getText());

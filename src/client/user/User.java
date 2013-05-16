@@ -65,7 +65,9 @@ public class User {
             //read from the socket
             for (String line =in.readLine(); line!=null; line=in.readLine()) {
                 if (line.length() != 0) {
-                    handleRequest(line);
+                    synchronized(socket){
+                        handleRequest(line);
+                    }
                 }
             }
         } finally {        
@@ -77,7 +79,7 @@ public class User {
      * Handles requests from the server, according to the grammar
      * @param input, the received message from the server
      */
-    public void handleRequest(String input) {
+    private void handleRequest(String input) {
         String[] tokens = input.split(" ");
         if (input.length()==0){;} //ignore empty strings
         //when the message is the list of online users
@@ -179,7 +181,7 @@ public class User {
      * Parse an "update" server message, updates conversation with new message
      * @param input, message from the server (-c .... -u ... -t ... ) according to grammar
      */
-    public void updateConvo(String input) {
+    private void updateConvo(String input) {
         //Parse the message data into appropriate fields
         boolean convo_id = false;
         StringBuilder ci = new StringBuilder();
@@ -265,15 +267,19 @@ public class User {
     /**
      * Tell the server to add a message to a Conversation, according to the grammar,
      * and add it to the User's Conversation
+     * synchronized with the Conversation, so that it can't be ended while a 
+     * message is sending
      * @param convo the Conversation to add the message to
      * @param text the Message
      */
     public String addMsgToConvo(Conversation convo, String text){
-        //add the message to this user's conversation
-        convo.addMessage(new Message(new UserInfo(this.username, color), convo, text));
-        //send message to server to add to OTHER users' conversations
-        return sendMessageToServer("-c " + convo.getConvoID() + "-u " + 
-                username + " -t " + text);
+        synchronized(convo){  //don't allow other mutations to convo while message is being added
+            //add the message to this user's conversation
+            convo.addMessage(new Message(new UserInfo(this.username, color), convo, text));
+            //send message to server to add to OTHER users' conversations
+            return sendMessageToServer("-c " + convo.getConvoID() + "-u " + 
+                    username + " -t " + text);
+        }
     }
     
     /**
@@ -281,8 +287,7 @@ public class User {
      * @return login message
      */
     public String login(){
-        sendMessageToServer("-l " + username + " " + color.toString());
-        return "";
+        return sendMessageToServer("-l " + username + " " + color.toString());
     }
     
     /**
@@ -303,7 +308,7 @@ public class User {
      * Actually send a String to the server
      * @param text the String to send
      */
-    public String sendMessageToServer(String text){
+    private String sendMessageToServer(String text){
         //send the text to the server
         out.print(text + '\n'); 
         out.flush();
@@ -317,10 +322,10 @@ public class User {
     protected void setOnlineUsers(ConcurrentHashMap<String, UserInfo> userMap){
         onlineUsers = userMap;
     }
-    public void addOnlineUser(UserInfo user){
+    private void addOnlineUser(UserInfo user){
         onlineUsers.put(user.getUsername(), user);
     }
-    public void removeOnlineUser(String user){
+    private void removeOnlineUser(String user){
         for (String username : onlineUsers.keySet()){
             if(user.equals(username)){
                 onlineUsers.remove(username);
@@ -356,7 +361,7 @@ public class User {
      * it was already previously created
      * @param convo, the new conversation to be added
      */
-    public void addNewMyConvo(Conversation convo){
+    private void addNewMyConvo(Conversation convo){
         checkDuplicateConvo(convo.getConvoID()); //don't allow duplicate conversations
         if (inactiveConvos.keySet().contains(convo.getConvoID())) {
             myConvos.put(convo.getConvoID(), inactiveConvos.get(convo.getConvoID())); //add the inactive convo
@@ -374,7 +379,7 @@ public class User {
      * removes conversation when it has been closed
      * @param convo the conversation to be removed
      */
-    public void removeMyConvo(Conversation convo){
+    private void removeMyConvo(Conversation convo){
         final class updateRunnable implements Runnable {
             private Conversation convo;
             
@@ -397,7 +402,7 @@ public class User {
      * checks conversation id to make sure duplicates aren't created
      * @param convoID the potential new conversation id
      */
-    public void checkDuplicateConvo(String convoID){
+    private void checkDuplicateConvo(String convoID){
         for (String ID: myConvos.keySet()){
             if(convoID.equals(ID)){
                 throw new DuplicateConvoException();

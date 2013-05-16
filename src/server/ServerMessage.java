@@ -5,15 +5,18 @@ import java.util.ArrayList;
 
 import client.user.UserInfo;
 /**
- * Object representing outgoing message from server
+ * Object representing outgoing message from server, which can
+ * go to many different Socket recipients
  *
  */
 public class ServerMessage {
     private final ArrayList<Socket> recipients;
     private final String text;
-    public ServerMessage(ArrayList<Socket> recipients, String text) {
+    private final ChatServer server;
+    public ServerMessage(ArrayList<Socket> recipients, String text, ChatServer server) {
         this.recipients = recipients;
         this.text = text + '\n';
+        this.server = server;
     }
     /**
      * Gets the recipient sockets of the message
@@ -34,7 +37,7 @@ public class ServerMessage {
         StringBuilder sb = new StringBuilder();
         sb.append("TO: ");
         for (Socket s : recipients) {
-            for (UserInfo ui : ChatServer.getInfoMap().values()) {
+            for (UserInfo ui : server.getInfoMap().values()) {
                 if (ui.getSocket() == s) {
                     sb.append(ui.getUsername());
                     sb.append(" ");

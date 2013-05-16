@@ -10,9 +10,11 @@ import java.net.SocketException;
  */
 public class ChatServerThread extends Thread {
     Socket socket;
+    ChatServer server;
     
-    public ChatServerThread(Socket socky) {
+    public ChatServerThread(Socket socky, ChatServer servy) {
         socket = socky;
+        server = servy;
     }
     
     /**
@@ -22,7 +24,7 @@ public class ChatServerThread extends Thread {
     public void run() {
         
         try {
-            ChatServer.handleConnection(socket);
+            server.handleConnection(socket);
         } catch (SocketException e) {
             return;
         } catch (IOException e) {
