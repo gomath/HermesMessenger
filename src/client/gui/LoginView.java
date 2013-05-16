@@ -9,9 +9,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.IOException;
 import java.net.ConnectException;
-import java.net.Socket;
 import java.net.UnknownHostException;
 
 import javax.swing.DefaultListCellRenderer;
@@ -23,8 +21,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-
-import client.ChatClient;
 
 import exceptions.InvalidUsernameException;
 /**
@@ -40,14 +36,14 @@ public class LoginView extends JFrame{
     private final JButton submitButton;
     private final JLabel hermes;
     private final JLabel messenger;
-    private final ChatClient client;
-    private final UserGUI gui;
+    //private final ChatClient client;
+    //private final UserGUI gui;
     /**
      * creates the view and fills with the appropriate content
      */
-    public LoginView(final ChatClient client, final UserGUI gui) {
-        this.client = client;
-        this.gui = gui;
+    public LoginView(final UserGUI gui) {
+        //this.client = client;
+        //this.gui = gui;
         setTitle("Hermes Messenger Login");
         setBackground(new Color(96, 80, 220));
         setPreferredSize(new Dimension(300,300));
@@ -161,13 +157,9 @@ public class LoginView extends JFrame{
             public void actionPerformed(ActionEvent arg0) {
                 try {
                     System.out.println("in the gui: " + Thread.currentThread().getId());
-                    client.attemptLogin(ipAddress.getText(), portNumber.getText(), username.getText(), (String) colorDropDown.getSelectedItem(), gui);
-                    gui.setUser(client.getUser());
+                    gui.getClient().attemptLogin(ipAddress.getText(), portNumber.getText(), username.getText(), (String) colorDropDown.getSelectedItem(), gui);
                     gui.setUserView();
-
-                    System.out.println("start");
-                    client.runUser();
-                    System.out.println("end");
+                    gui.getClient().runUser();
                 } catch (NumberFormatException e1) {
                     JOptionPane.showMessageDialog(getContentPane(), "Invalid port number");
                     portNumber.setText("Port");
@@ -217,6 +209,27 @@ public class LoginView extends JFrame{
 
         setVisible(true);
     }
+    
+    /**
+     * closes the frame
+     */
+    public void close() {
+        //set visibility to false, and dispose
+        final class closeRunnable implements Runnable {
+            private LoginView view;
+            
+            public closeRunnable(LoginView view1){
+                view = view1;
+            }
+            public void run(){
+                view.setVisible(false);
+                view.dispose();
+            }  
+        }
+        Runnable close = new closeRunnable(this);
+        SwingUtilities.invokeLater(close);
+    }
+    
     /**
      * creates the frame
      * @param args
@@ -237,24 +250,6 @@ public class LoginView extends JFrame{
         SwingUtilities.invokeLater(login);
         
     }
-    /**
-     * closes the frame
-     */
-    public void close() {
-        //set visibility to false, and dispose
-        final class closeRunnable implements Runnable {
-            private LoginView view;
-            
-            public closeRunnable(LoginView view1){
-                view = view1;
-            }
-            public void run(){
-                view.setVisible(false);
-                view.dispose();
-            }  
-        }
-        Runnable close = new closeRunnable(this);
-        SwingUtilities.invokeLater(close);
-    }
+
 
 }

@@ -2,35 +2,27 @@ package client.user;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import org.junit.Test;
-
-import client.gui.UserGUI;
 
 public class UserTest {
     @Test
     public void test() {
         String username1 = "jenn";
         String color1 = "orange";
-            Socket socket1 = new Socket();
-            User user = new User(username1, color1, socket1, null);
-            assertEquals(user.getUsername(), username1);
-
-            User user2 = new User("dan", color1, socket1, null);
-
-            System.out.println(user.getUsername());
-            System.out.println(user2.getUsername());
-        
-            
+        Socket socket1 = new Socket();
+        User user = new User(username1, color1, socket1);
+        assertEquals(user.getUsername(), username1);
+        assertEquals(user.getColor(), color1);
+        assertEquals(user.getSocket(), socket1);   
         }
     }
+   // @Test
+   // public void 
     
 /*
- * Method: User(String username1, String color1, Socket socket1)
-Strategy: est creation of a User with mock socket and ensure things are set correctly
+ 
 Method: handleRequest(String input)
 Strategy: partition the input space and test all possible inputs that do not affect the GUI and use Integration testing with ConversationView
 Method: sendMessageToServer(String text)

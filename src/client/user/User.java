@@ -22,10 +22,10 @@ public class User {
     private String color;
     private Socket socket;
     private UserGUI gui;
-    private static ConcurrentHashMap<String, UserInfo> onlineUsers;
-    private static ConcurrentHashMap<String, Conversation> myConvos;
-    private static ConcurrentHashMap<String, Conversation> inactiveConvos;
-    private static PrintWriter out;
+    private ConcurrentHashMap<String, UserInfo> onlineUsers;
+    private ConcurrentHashMap<String, Conversation> myConvos;
+    private ConcurrentHashMap<String, Conversation> inactiveConvos;
+    private PrintWriter out;
     private LoginView loginView;
     private ConversationView convoView;
     
@@ -36,11 +36,11 @@ public class User {
      * @param color a Color representing the User's color preference
      * @param socket a Socket that corresponds to the User's connection
      */
-    public User(String username1, String color1, Socket socket1, UserGUI gui){
-        this.username = username1;
-        this.color = color1;
-        this.socket = socket1;
-        this.gui = gui;
+    public User(String username1, String color1, Socket socket1){
+        username = username1;
+        color = color1;
+        socket = socket1;
+        //gui = gui1;
         onlineUsers = new ConcurrentHashMap<String, UserInfo>();
         myConvos = new ConcurrentHashMap<String, Conversation>();
         inactiveConvos = new ConcurrentHashMap<String, Conversation>();
@@ -69,7 +69,7 @@ public class User {
             for (String line =in.readLine(); line!=null; line=in.readLine()) {
                 if (line.length() != 0) {
                     System.out.println("CLIENT INBOX: " + line);
-                    this.handleRequest(line);
+                    handleRequest(line);
                 }
             }
         } finally {        
@@ -107,7 +107,7 @@ public class User {
             Runnable update = new Runnable() {
                 public void run(){
                     System.out.println(Thread.currentThread().getId());
-                    ConversationView.updateOnlineUsers();
+                    convoView.updateOnlineUsers();
                 }
             };
             SwingUtilities.invokeLater(update);
@@ -122,7 +122,7 @@ public class User {
             Runnable update = new Runnable() {
                 public void run(){
                     System.out.println(Thread.currentThread().getId());
-                    ConversationView.updateOnlineUsers();
+                    convoView.updateOnlineUsers();
                 }
             };
             SwingUtilities.invokeLater(update);
@@ -140,7 +140,7 @@ public class User {
                 }
                 else{
                    if (tokens[i].equals(this.username)) {
-                       map.put(tokens[i], new UserInfo(this.username, this.color)); 
+                       map.put(tokens[i], new UserInfo(this.username, color)); 
                    } else {
                        map.put(tokens[i], onlineUsers.get(tokens[i])); 
                    }
@@ -174,7 +174,7 @@ public class User {
      * Actually send a String to the server
      * @param text the String to send
      */
-    public static String sendMessageToServer(String text){
+    public String sendMessageToServer(String text){
         System.out.println("CLIENT OUTBOX: " + text);
         out.print(text + '\n'); 
         out.flush();
@@ -190,10 +190,10 @@ public class User {
         for (Object un: usernames) {
             participants.put((String) un, onlineUsers.get(un));
         }
-        participants.put(this.username, new UserInfo(this.username, this.color));
+        participants.put(this.username, new UserInfo(this.username, color));
         Conversation convo = new Conversation(participants);
         addNewMyConvo(convo);
-        return sendMessageToServer("-s " + convo.getConvoID() + "-u " + this.username);
+        return sendMessageToServer("-s " + convo.getConvoID() + "-u " + username);
     }
     
     /**
@@ -202,7 +202,7 @@ public class User {
      */
     public String closeConvo(Conversation convo){
         removeMyConvo(convo);
-        return sendMessageToServer("-x " + convo.getConvoID() + "-u " + this.username);
+        return sendMessageToServer("-x " + convo.getConvoID() + "-u " + username);
     }
     
     /**
@@ -211,9 +211,9 @@ public class User {
      * @param text the Message
      */
     public String addMsgToConvo(Conversation convo, String text){
-        convo.addMessage(new Message(new UserInfo(this.username, this.color), convo, text));
+        convo.addMessage(new Message(new UserInfo(this.username, color), convo, text));
         return sendMessageToServer("-c " + convo.getConvoID() + "-u " + 
-                this.username + " -t " + text);
+                username + " -t " + text);
     }
 
     /**
@@ -252,7 +252,7 @@ public class User {
         if (!un.toString().equals(this.username)) {
             convo.addMessage(new Message(onlineUsers.get(un.toString()), convo, msg.toString()));
         } else {
-            convo.addMessage(new Message(new UserInfo(this.username, this.color), convo, msg.toString()));
+            convo.addMessage(new Message(new UserInfo(this.username, color), convo, msg.toString()));
         } 
         
         //update tab from GUI thread
@@ -264,7 +264,7 @@ public class User {
             }
             public void run(){
                 System.out.println(Thread.currentThread().getId());
-                ConversationView.updateTab(convo.getConvoID());
+                convoView.updateTab(convo.getConvoID());
             }  
         }
         Runnable update = new updateRunnable(convo);
@@ -284,11 +284,11 @@ public class User {
      * Tell the server to disconnect the user
      */
     public void quit(){
-        this.gui.openLoginView();
+        gui.openLoginView();
         for (Conversation convo : myConvos.values()) {
-            this.closeConvo(convo);
+            closeConvo(convo);
         }
-        sendMessageToServer("-q " + this.username);
+        sendMessageToServer("-q " + username);
     }
     
     /**
@@ -302,13 +302,13 @@ public class User {
      * Methods to completely replace the onlineUsers map, add one user to
      * it, or remove one user from it.
      */
-    private static void setOnlineUsers(ConcurrentHashMap<String, UserInfo> userMap){
+    private void setOnlineUsers(ConcurrentHashMap<String, UserInfo> userMap){
         onlineUsers = userMap;
     }
-    public static void addOnlineUser(UserInfo user){
+    public void addOnlineUser(UserInfo user){
         onlineUsers.put(user.getUsername(), user);
     }
-    public static void removeOnlineUser(String user){
+    public void removeOnlineUser(String user){
         for (String username : onlineUsers.keySet()){
             if(user.equals(username)){
                 onlineUsers.remove(username);
@@ -321,26 +321,27 @@ public class User {
      * @return the instance variable.
      */
     public String getUsername(){
-        return this.username;
+        return username;
     }
     public String getColor(){
-        return this.color;
+        return color;
     }
     public Socket getSocket(){
-        return this.socket;
+        return socket;
     }
-    public static ConcurrentHashMap<String, UserInfo> getOnlineUsers(){
+    public ConcurrentHashMap<String, UserInfo> getOnlineUsers(){
         return onlineUsers;
     }
-    public static ConcurrentHashMap<String, Conversation> getMyConvos(){
+    public ConcurrentHashMap<String, Conversation> getMyConvos(){
         return myConvos;
     }
-    public static ConcurrentHashMap<String, Conversation> getInactiveConvos(){
+    public ConcurrentHashMap<String, Conversation> getInactiveConvos(){
         return inactiveConvos;
     }
     
     /**
-     * adds a newly created conversation
+     * adds a newly created conversation, using an inactiveConvo if 
+     * it was already previously created
      * @param convo, the new conversation to be added
      */
     public void addNewMyConvo(Conversation convo){
@@ -351,31 +352,18 @@ public class User {
         } else {
             myConvos.put(convo.getConvoID(), convo);
         }
-        
         //update tab from GUI thread
-        final class updateRunnable implements Runnable {
-            private Conversation convo;
-            private ConversationView view;
-            
-            public updateRunnable(Conversation convo1, ConversationView view1){
-                convo = convo1;
-                view = view1;
-            }
-            public void run(){
-                System.out.println(Thread.currentThread().getId());
-                view.updateTabs();
-                ConversationView.fillHistory(convo.getConvoID());
-            }  
-        }
-        Runnable update = new updateRunnable(convo, this.convoView);
-        SwingUtilities.invokeLater(update);      
+        //will already be in event handling thread so no need to make a runnable
+        System.out.println(Thread.currentThread().getId());
+        convoView.updateTabs();
+        ConversationView.fillHistory(convo.getConvoID());   
     }
     
     /**
      * removes conversation when it has been closed
      * @param convo the conversation to be removed
      */
-    public static void removeMyConvo(Conversation convo){
+    public void removeMyConvo(Conversation convo){
         final class updateRunnable implements Runnable {
             private Conversation convo;
             
@@ -398,7 +386,7 @@ public class User {
      * checks conversation id to make sure duplicates aren't created
      * @param convoID the potential new conversation id
      */
-    public static void checkDuplicateConvo(String convoID){
+    public void checkDuplicateConvo(String convoID){
         for (String ID: myConvos.keySet()){
             if(convoID.equals(ID)){
                 throw new DuplicateConvoException();
@@ -412,14 +400,16 @@ public class User {
      */
     public void setLoginView(LoginView login){
         System.out.println("try again " + login);
-        this.loginView = login;
+        loginView = login;
     }
     /**
      * sets login view
      * @param login the loginview
      */
     public void setConversationView(ConversationView convo){
-        this.convoView = convo;
+        convoView = convo;
     }
-    
+    public void setGUI(UserGUI gui1){
+        gui = gui1;
+    }
 }

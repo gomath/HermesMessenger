@@ -13,16 +13,14 @@ public class UserGUI  extends JFrame {
     private static final long serialVersionUID = 1L;
     private LoginView login = null;
     private ConversationView convo = null;
-    private User user;
     private final ChatClient client;
     
     /**
      * initializes the login view 
      */
-    public UserGUI(User user, ChatClient client) {
-        this.user = user;
+    public UserGUI(ChatClient client) {
         this.client = client;
-        this.login = new LoginView(this.client, this);
+        this.login = new LoginView(this);
         System.out.println(this.login + "end");
         //user.setLoginView(this.login);
         this.login.main(new String[]{});
@@ -33,26 +31,35 @@ public class UserGUI  extends JFrame {
      */
     public void openConversationView() {
         this.login.close();
-        //this.convo = new ConversationView(user, this);
-        ConversationView.main(this.user, this);
+        ConversationView.main(this);
     }
     
     /**
      * called to close conversation view and reopen the login view
      */
     public void openLoginView() {
-        ConversationView.close();
-        this.login = new LoginView(this.client, this);
-        user.setLoginView(this.login);
-        //login.main(new String[]{});
+        convo.close();
+        this.login = new LoginView(this);
+        client.getUser().setLoginView(this.login);
     }
-    public void setUser(User user1) {
-        user = user1;
+
+    /**
+     * Get the GUI's User
+     * @return the User
+     */
+    public User getUser(){
+        return client.getUser();
     }
+    /**
+     * Set the User's LoginView
+     */
     public void setUserView() {
-        user.setLoginView(this.login);
+        client.getUser().setLoginView(this.login);
     }
     public void setConvoView(ConversationView view) {
         convo = view;
+    }
+    public ChatClient getClient() {
+        return client;
     }
 }

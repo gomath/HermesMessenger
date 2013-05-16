@@ -6,7 +6,6 @@ import java.net.UnknownHostException;
 
 import javax.swing.SwingUtilities;
 
-import client.gui.LoginView;
 import client.gui.UserGUI;
 import client.user.User;
 
@@ -17,36 +16,24 @@ import exceptions.InvalidUsernameException;
  */
 public class ChatClient {
     private User user;
-    //=private static UserGUI gui;
     
     /**
-     * Runs a GUIThread
+     * Starts a new UserGUI on the Event thread
      */
     public ChatClient(){
         final class startGui implements Runnable {
-            private User user;
             private ChatClient client;
             
-            public startGui(User user, ChatClient client){
-                this.user = user;
+            public startGui(ChatClient client){
                 this.client = client;
             }
             public void run(){
-                new UserGUI(user, client);
+                new UserGUI(client);
             }  
         }
-        Runnable start = new startGui(this.user, this);
-        SwingUtilities.invokeLater(start);
-//        
-//        Runnable startGui = new Runnable() {
-//            public void run(){
-//                System.out.println(Thread.currentThread().getId());
-//                newUserGUI();
-//            }
-//        };
-//        SwingUtilities.invokeLater(startGui);
-        //GUIThread guiThread = new GUIThread(user);
-        //new Thread(guiThread).start();
+        Runnable start = new startGui(this);
+        SwingUtilities.invokeLater(start);  //put it on event handling thread
+
     }
     /**
      * Sets the user instance variable, based on the desired username, color and socket
@@ -54,8 +41,8 @@ public class ChatClient {
      * @param color the desired color (as a String) for the user's GUI theme
      * @param socket the Socket object it will use to communicate with the server
      */
-    public void setUser(String username, String color, Socket socket, UserGUI gui){
-        this.user = new User(username, color, socket, gui);
+    public void setUser(String username, String color, Socket socket){
+        this.user = new User(username, color, socket);
     }
     
     /**
@@ -80,8 +67,9 @@ public class ChatClient {
                 throw new InvalidUsernameException();
             }
         }
-        //set the user attribute of the ChatClient
-        this.setUser(username, color, socket, gui);
+        //if no errors thrown, set the user attribute of the ChatClient
+        this.setUser(username, color, socket);
+        user.setGUI(gui);
         
                 
     }
