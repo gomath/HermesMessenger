@@ -21,7 +21,6 @@ public class ClientThread implements Runnable {
      * handles the socket connection
      */
     public void run(){
-        System.out.println("Created new ClientThread");
         try {
             user.handleConnection(socket);
         } catch (Exception e) {

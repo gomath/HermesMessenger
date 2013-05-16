@@ -11,6 +11,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import client.user.UserInfo;
 
+/**
+ * 
+ * Runs the Server and maintains a ServerSocket to communicate with all Clients.
+ */
 public class ChatServer {
     private final ServerSocket serverSocket;
     private ConcurrentHashMap<String, UserInfo> infoMap = new ConcurrentHashMap<String,UserInfo>();
