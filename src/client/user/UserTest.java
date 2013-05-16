@@ -1,12 +1,20 @@
 package client.user;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.Test;
-
+/**
+ * OVERALL TESTING STRATEGY
+ * Each individual method that can be tested in isolation
+ * has a unit test below. Many of the methods of User involve
+ * communication with the Server, or updating the GUI. We tested
+ * each of these functionalities visually or using print statements
+ * as described below.
+ *
+ */
 public class UserTest {
     //Tests that a user is created properly
     @Test
@@ -98,6 +106,49 @@ public class UserTest {
         userMap.put("Blobberty", ui);
         user.setOnlineUsers(userMap);
         assertEquals(user.getOnlineUsers().keySet(), userMap.keySet());
+    }
+    
+    //Tests getting username
+    @Test
+    public void getUsernameTest() {
+        User user = new User("Banana", "yellow", new Socket());
+        assertEquals("Banana", user.getUsername());
+    }
+    
+    //Tests getting color
+    @Test
+    public void getColorTest() {
+        User user = new User("Banana", "yellow", new Socket());
+        assertEquals("yellow", user.getColor());
+    }
+    
+    //Tests getting socket
+    @Test
+    public void getSocketTest() {
+        Socket socky = new Socket();
+        User user = new User("Banana", "yellow", socky);
+        assertEquals(socky, user.getSocket());
+    }
+    
+    //Tests getting online users
+    @Test
+    public void getOnlineUsers() {
+        User user = new User("Banana", "yellow", new Socket());
+        assertEquals(new ConcurrentHashMap<String, UserInfo>(), user.getOnlineUsers());
+    }
+    
+    //Tests getting my conversations
+    @Test
+    public void getMyConvos() {
+        User user = new User("Banana", "yellow", new Socket());
+        assertEquals(new ConcurrentHashMap<String, Conversation>(), user.getMyConvos());
+    }
+    
+    //Tests getting inactive conversations
+    @Test
+    public void getInactivConvos() {
+        User user = new User("Banana", "yellow", new Socket());
+        assertEquals(new ConcurrentHashMap<String, UserInfo>(), user.getInactiveConvos());
     }
     
     /**
