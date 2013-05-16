@@ -33,12 +33,7 @@ public class ChatClientTest {
         assertEquals(user.getColor(), c.getUser().getColor());
     }
     
-    @Test(expected = InvalidUsernameException.class) 
-    public void invalidUsernameTest() throws UnknownHostException, IOException {
-        ChatClient c = new ChatClient();
-        UserGUI gui = new UserGUI(c);
-        c.attemptLogin("localhost", "4444", "6005isthebest", "green", gui);
-    }
+
     
 
 }
