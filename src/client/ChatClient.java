@@ -58,7 +58,6 @@ public class ChatClient {
      * or if it's outside the specified range of valid port values, which is between 0 and 65535, inclusive
      */
     public void attemptLogin(String IP, String port, String username, String color, UserGUI gui) throws UnknownHostException, IOException{
-        Socket socket = new Socket(IP, Integer.parseInt(port));
         int i=0;
         //check that each character in the username is a letter
         for(char c:username.toCharArray()){
@@ -67,6 +66,9 @@ public class ChatClient {
                 throw new InvalidUsernameException();
             }
         }
+        //connect if no errors
+        Socket socket = new Socket(IP, Integer.parseInt(port));
+        
         //if no errors thrown, set the user attribute of the ChatClient
         this.setUser(username, color, socket);
         user.setGUI(gui);
