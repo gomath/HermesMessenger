@@ -7,9 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 
 import org.junit.Test;
 
@@ -85,7 +83,6 @@ public class ChatServerNoDiditTest {
         String logoutInfo = "-q dale";
         Socket socket = new Socket("localhost", 4444);
         PrintWriter out = new PrintWriter(socket.getOutputStream());
-        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         //connect our first user
         out.print(connectInfo);
@@ -93,7 +90,6 @@ public class ChatServerNoDiditTest {
         
         //info for our second user
         String connectInfo2 = "-l jim red\n";
-        String logoutInfo2 = "-q jim";
         Socket socket2 = new Socket("localhost", 4444);
         PrintWriter out2 = new PrintWriter(socket2.getOutputStream());
         BufferedReader in2 = new BufferedReader(new InputStreamReader(socket2.getInputStream()));
@@ -147,7 +143,6 @@ public class ChatServerNoDiditTest {
         String messageInvite = "-s loras renly -u renly \n";
         Socket socket2 = new Socket("localhost", 4444);
         PrintWriter out2 = new PrintWriter(socket2.getOutputStream());
-        BufferedReader in2 = new BufferedReader(new InputStreamReader(socket2.getInputStream()));
         
         //log the second user in
         out2.print(connectInfo2);
