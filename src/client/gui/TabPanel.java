@@ -17,6 +17,10 @@ import client.user.Conversation;
 import client.user.Message;
 import client.user.User;
 
+/**
+ * Represents the tabs layout of the Conversation GUI.
+ *
+ */
 public class TabPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     private Conversation convo;
@@ -25,6 +29,11 @@ public class TabPanel extends JPanel {
     private JList history;
     private final User user;
     
+    /**
+     * Makes the panel
+     * @param convo Conversation that the panel is for
+     * @param user the User that needs to see the conversation in the panel
+     */
     public TabPanel(Conversation convo, User user) {
         this.convo = convo;
         this.user = user;
@@ -35,8 +44,6 @@ public class TabPanel extends JPanel {
     
     /**
      * Makes a panel for a conversation
-     * @param convo, the conversation associated with that tab
-     * @return 
      * @return the panel
      */
     private void makePanel() {

@@ -34,23 +34,32 @@ import client.user.Message;
 import client.user.UserInfo;
 import exceptions.DuplicateConvoException;
 
+/**
+ * Represents the user’s conversations as a window with tabs for each 
+ * conversation and ways to logout, start a new conversation, 
+ * send messages, etc.
+ */
+
 public class ConversationView extends JPanel{
     private static final long serialVersionUID = 1L;
     private static JFrame frame;
-    private static JTabbedPane tabby;
+    private JTabbedPane tabby;
     private static JMenuBar menuBar;
     private final JMenu file;
     private final JMenuItem logout;
     private final JMenuItem closeConvo;
-    private static DefaultListModel listModel;
-    private static JList list;
-    private static ConcurrentHashMap<String, TabPanel> tabMap = new ConcurrentHashMap<String, TabPanel>();
+    private DefaultListModel listModel;
+    private JList list;
+    private ConcurrentHashMap<String, TabPanel> tabMap = new ConcurrentHashMap<String, TabPanel>();
     public final static ConcurrentHashMap<String, Color> colorMap = new ConcurrentHashMap<String, Color>();
     public final UserGUI gui;
     
+    /**
+     * Build the window, and add all components of the GUI.
+     * @param gui the UserGUI that controls this view.
+     */
     public ConversationView(final UserGUI gui) {
         super(new GridLayout(1, 1));
-        //this.user = user;
         this.gui = gui;
 
         //Make color map
@@ -118,12 +127,6 @@ public class ConversationView extends JPanel{
         tabby.addTab("New", newPanel);       
         add(tabby);
         tabby.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-        
-      //Turn off metal's use of bold fonts
-//        UIManager.put("swing.boldMetal", Boolean.FALSE);
-//        System.out.println("before create");
-//        createAndShowGUI(user, gui);
-//        System.out.println("after create");
     }
     
     /**
@@ -134,6 +137,7 @@ public class ConversationView extends JPanel{
     public String parseConvoID(String convoID) {
         StringBuilder sb = new StringBuilder();
         for (String un:convoID.split(" ")) {
+            //only add if it's not yourself
             if (!un.equals(gui.getUser().getUsername())) {
                 sb.append(un);
                 sb.append(" ");
@@ -155,15 +159,17 @@ public class ConversationView extends JPanel{
         //START CONVERSATION BUTTON
         JButton startButton = new JButton();
         startButton.setText("Start Conversation");
+        //when they click to start the conversation
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 Object[] usernames = list.getSelectedValues();
                 try {
+                    //start a conversation with the selected user(s)
                     gui.getUser().startConvo(usernames);
-                    System.out.println("Setting index in 3...2....1 " + Thread.currentThread().getId());
                     tabby.setSelectedIndex(tabby.getTabCount()-1);
                 } catch (DuplicateConvoException e) {
+                    //if the convo already exists, don't restart it
                     JOptionPane.showMessageDialog(getRootPane(), "Conversation already exists");
                 } 
             }
@@ -171,6 +177,7 @@ public class ConversationView extends JPanel{
         //VIEW HISTORY CONVERSATION BUTTON
         JButton historyButton = new JButton();
         historyButton.setText("View Chat History");
+        //when someone tries to see chat history
         historyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
@@ -202,8 +209,10 @@ public class ConversationView extends JPanel{
                     //Display the window.
                     frame.pack();
                     frame.setVisible(true);
+                //if the convo is open
                 } else if (gui.getUser().getMyConvos().keySet().contains(convo.getConvoID())) {
                     JOptionPane.showMessageDialog(getRootPane(), "Conversation is currently active");
+                //if the convo never existed
                 } else {
                     JOptionPane.showMessageDialog(getRootPane(), "No chat history to display");
                 }
@@ -242,24 +251,12 @@ public class ConversationView extends JPanel{
                 JLabel cid = new JLabel(this.parseConvoID(convoID));
                 cid.setName(convoID);
                 tabby.setTabComponentAt(tabby.getTabCount()-1, cid);
-                //tabby.setBackgroundAt(tabby.getTabCount()-1, panel.getColor());
                 tabMap.put(convoID, panel);
             }
         }
     }
     
-    /**
-     * Closes tab for a conversation that was closed
-     */
-    public static void removeTab(String convoID) {
-        tabMap.remove(convoID);
-        for (int i=tabby.getTabCount()-1; i > 0; i--) {
-           if (((TabPanel)tabby.getComponentAt(i)).getConvo().getConvoID().equals(convoID)) {
-               tabby.remove(i);
-           }
-        }
-    }
-    
+      
     /**
      * updates the conversation in the tab containing conversation given by convoID
      * @param convoID the conversation to be updated
@@ -275,12 +272,24 @@ public class ConversationView extends JPanel{
              }
          }
     }
-    
+ 
+    /**
+     * Closes tab for a conversation that was closed
+     */
+    public void removeTab(String convoID) {
+        tabMap.remove(convoID);
+        for (int i=tabby.getTabCount()-1; i > 0; i--) {
+           if (((TabPanel)tabby.getComponentAt(i)).getConvo().getConvoID().equals(convoID)) {
+               tabby.remove(i);
+           }
+        }
+    }
+  
     /**
      * fills the conversation history in the tab containing conversation given by convoID
      * @param convoID the conversation to be updated
      */
-    public static void fillHistory(String convoID) {
+    public void fillHistory(String convoID) {
          tabMap.get(convoID).fillHistory();
     }
     
@@ -288,7 +297,6 @@ public class ConversationView extends JPanel{
      * Create the GUI and show it.  For thread safety,
      * this method should be invoked from
      * the event dispatch thread.
-     * @param user the User that is associated with the view
      * @param gui the UserGUI associated with this view
      */
     private static void createAndShowGUI(UserGUI gui) {
@@ -307,28 +315,25 @@ public class ConversationView extends JPanel{
         frame.pack();
         frame.setVisible(true);
     }
-    /**
-     * 
-     * Schedule a job for the event dispatch thread:
-     * creating and showing this application's GUI. 
-     * @param user1 the view's User
-     * @param gui1 the view's UserGUI controller
-     */
-    public static void main(final UserGUI gui1) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                //Turn off metal's use of bold fonts
-                UIManager.put("swing.boldMetal", Boolean.FALSE);
-                createAndShowGUI(gui1);
-            }
-        });
-    }
+
     
     /**
-     * closes the frame
+     * closes the frame and sets its visibility to false
      */
     public void close() {
         frame.setVisible(false);
         frame.dispose();
+    }
+    
+    /**
+     * 
+     * Schedule a job for the event dispatch thread:
+     * creating and showing this application's GUI. 
+     * @param gui the view's UserGUI controller
+     */
+    public static void main(final UserGUI gui) {
+        //turn of metal's use of bold fonts
+        UIManager.put("swing.boldMetal", Boolean.FALSE);
+        createAndShowGUI(gui);
     }
 }

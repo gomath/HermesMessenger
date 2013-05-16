@@ -183,15 +183,15 @@ public class User {
      */
     private void updateConvo(String input) {
         //Parse the message data into appropriate fields
-        boolean convo_id = false;
+        boolean convoID = false;
         StringBuilder ci = new StringBuilder();
         boolean user = false;
         StringBuilder un = new StringBuilder();
         boolean text = false;
         StringBuilder msg = new StringBuilder();
         for (String token: input.split(" ")) {
-            //builds the convo_id using tokens before the -u
-            if (convo_id && !token.equals("-u")) {
+            //builds the convoID using tokens before the -u
+            if (convoID && !token.equals("-u")) {
                 ci.append(token);
                 ci.append(" ");
             //builds the username using the token before the -t
@@ -202,12 +202,12 @@ public class User {
                 msg.append(token);
                 msg.append(" ");
             }
-            //after the -c, start looking for the convo_id
+            //after the -c, start looking for the convoID
             if (token.equals("-c")) {
-                convo_id = true;
+                convoID = true;
             //after the -u, start looking for username instead
             } else if (token.equals("-u")) {
-                convo_id = false;
+                convoID = false;
                 user = true;
             //after the -t, start looking for the text instead
             } else if (token.equals("-t")) {
@@ -215,7 +215,7 @@ public class User {
                 text = true;
             }
         }
-        //add the message to the convo that has the correct convo_id
+        //add the message to the convo that has the correct convoID
         Conversation convo = myConvos.get(ci.toString());
         convo.addMessage(new Message(onlineUsers.get(un.toString()), convo, msg.toString()));
         
@@ -372,7 +372,7 @@ public class User {
         //update tab from GUI thread
         //will already be in event handling thread so no need to make a runnable
         convoView.updateTabs();
-        ConversationView.fillHistory(convo.getConvoID());   
+        convoView.fillHistory(convo.getConvoID());   
     }
     
     /**
@@ -387,7 +387,7 @@ public class User {
                 convo = convo1;
             }
             public void run(){
-                ConversationView.removeTab(convo.getConvoID());
+                convoView.removeTab(convo.getConvoID());
             }  
         }
         Runnable update = new updateRunnable(convo);

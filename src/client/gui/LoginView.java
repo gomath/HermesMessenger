@@ -36,14 +36,11 @@ public class LoginView extends JFrame{
     private final JButton submitButton;
     private final JLabel hermes;
     private final JLabel messenger;
-    //private final ChatClient client;
-    //private final UserGUI gui;
+    
     /**
-     * creates the view and fills with the appropriate content
+     * Creates the view and fills with the appropriate content
      */
     public LoginView(final UserGUI gui) {
-        //this.client = client;
-        //this.gui = gui;
         setTitle("Hermes Messenger Login");
         setBackground(new Color(96, 80, 220));
         setPreferredSize(new Dimension(300,300));
@@ -64,6 +61,7 @@ public class LoginView extends JFrame{
         ipAddress = new JTextField();
         ipAddress.setText("IP Address");
         ipAddress.setMaximumSize(new Dimension(200, 1));
+        //when clicked away from
         ipAddress.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent arg0) {}
@@ -74,6 +72,7 @@ public class LoginView extends JFrame{
                 }
             }
         });
+        //when user starts typing
         ipAddress.addKeyListener(new KeyListener() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -91,6 +90,7 @@ public class LoginView extends JFrame{
         portNumber = new JTextField();
         portNumber.setText("Port");
         portNumber.setMaximumSize(new Dimension(200, 1));
+        //when clicked away from
         portNumber.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent arg0) {}
@@ -101,6 +101,7 @@ public class LoginView extends JFrame{
                 }
             }
         });
+        //when user starts typing
         portNumber.addKeyListener(new KeyListener() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -118,6 +119,7 @@ public class LoginView extends JFrame{
         username = new JTextField();
         username.setText("Username");
         username.setMaximumSize(new Dimension(200, 1));
+        //when clicked away from
         username.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent arg0) {}
@@ -128,6 +130,7 @@ public class LoginView extends JFrame{
                 }
             }
         });
+        //when user starts typing
         username.addKeyListener(new KeyListener() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -140,6 +143,7 @@ public class LoginView extends JFrame{
             @Override
             public void keyTyped(KeyEvent e) {}
         });
+        
         //COLOR PICKER
         String[] colorStrings = {"red", "orange", "yellow", "green", "blue", "pink"};
         colorDropDown = new JComboBox(colorStrings);
@@ -152,11 +156,11 @@ public class LoginView extends JFrame{
         //SUBMIT BUTTON
         submitButton = new JButton();
         submitButton.setText("Submit");
+        //when enter is hit or submit is clicked
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 try {
-                    System.out.println("in the gui: " + Thread.currentThread().getId());
                     gui.getClient().attemptLogin(ipAddress.getText(), portNumber.getText(), username.getText(), (String) colorDropDown.getSelectedItem(), gui);
                     gui.setUserView();
                     gui.getClient().runUser();
@@ -215,40 +219,18 @@ public class LoginView extends JFrame{
      */
     public void close() {
         //set visibility to false, and dispose
-        final class closeRunnable implements Runnable {
-            private LoginView view;
-            
-            public closeRunnable(LoginView view1){
-                view = view1;
-            }
-            public void run(){
-                view.setVisible(false);
-                view.dispose();
-            }  
-        }
-        Runnable close = new closeRunnable(this);
-        SwingUtilities.invokeLater(close);
+        this.setVisible(false);
+        this.dispose();
+         
     }
     
     /**
-     * creates the frame
-     * @param args
+     * Makes a new LoginView and sets gui's LoginView to be it
+     * @param gui, the UserGUI that controls the LoginView
      */
-    public void main(final String[] args) {
-        //set the visibility to true
-        final class loginRunnable implements Runnable {
-            private LoginView view;
-            
-            public loginRunnable(LoginView view1){
-                view = view1;
-            }
-            public void run(){
-                view.setVisible(true);
-            }  
-        }
-        Runnable login = new loginRunnable(this);
-        SwingUtilities.invokeLater(login);
-        
+    public static void main(final UserGUI gui) {
+        LoginView login = new LoginView(gui);
+        gui.setLoginView(login);        
     }
 
 

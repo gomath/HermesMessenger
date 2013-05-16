@@ -305,6 +305,16 @@ public class ChatServer {
         }
         return recipients;
     }
+    /**
+     * Getter methods for some instance variables
+     * @return the instance variable
+     */
+    public ConcurrentHashMap<String, UserInfo> getInfoMap() {
+        return infoMap;
+    }
+    public ServerSocket getServerSocket(){
+        return serverSocket; 
+    }
     
     /**
      * Runs the ChatServer
@@ -319,15 +329,14 @@ public class ChatServer {
         }
     }
     
+    /**
+     * Makes a server and runs serve()
+     * @param port the port the server should connect to
+     * @throws IOException when the port is invalid
+     */
     public static void runChatServer(int port) throws IOException {
         ChatServer server = new ChatServer(port);
         server.serve();
     }
-    
-    public ConcurrentHashMap<String, UserInfo> getInfoMap() {
-        return infoMap;
-    }
-    public ServerSocket getServerSocket(){
-        return serverSocket; 
-    }
+
 }

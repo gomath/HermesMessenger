@@ -1,8 +1,7 @@
 package exceptions;
 
 /**
- * Exception for when a user attempts to make duplicate conversations
- * only one active conversation is allowed between any given group of users
+ * Is thrown when User.startConvo is called with a convoID that already exists.
  *
  */
 public class DuplicateConvoException extends RuntimeException{

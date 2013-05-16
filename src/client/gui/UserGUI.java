@@ -20,10 +20,8 @@ public class UserGUI  extends JFrame {
      */
     public UserGUI(ChatClient client) {
         this.client = client;
-        this.login = new LoginView(this);
-        System.out.println(this.login + "end");
-        //user.setLoginView(this.login);
-        this.login.main(new String[]{});
+        //this.login = new LoginView(this);
+        LoginView.main(this);
     }
     
     /**
@@ -43,23 +41,43 @@ public class UserGUI  extends JFrame {
         client.getUser().setLoginView(this.login);
     }
 
+
+    /**
+     * Set the User's LoginView to be the current one
+     */
+    public void setUserView() {
+        client.getUser().setLoginView(this.login);
+    }
+    
+    /**
+     * Set convo to be view, this is called once a Client
+     * successfully logs on
+     * @param view the ConversationView to set it to
+     */
+    public void setConvoView(ConversationView view) {
+        convo = view;
+    }
+    /**
+     * Set login to be view
+     * @param view the LoginView to set it to
+     */
+    public void setLoginView(LoginView view) {
+        login = view;
+    }
+    
+    /**
+     * Get the GUI's Client
+     * @return the client
+     */
+    public ChatClient getClient() {
+        return client;
+    }
+    
     /**
      * Get the GUI's User
      * @return the User
      */
     public User getUser(){
         return client.getUser();
-    }
-    /**
-     * Set the User's LoginView
-     */
-    public void setUserView() {
-        client.getUser().setLoginView(this.login);
-    }
-    public void setConvoView(ConversationView view) {
-        convo = view;
-    }
-    public ChatClient getClient() {
-        return client;
     }
 }

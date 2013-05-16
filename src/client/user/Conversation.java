@@ -3,7 +3,12 @@ package client.user;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-
+/**
+ * 
+ * Object representing a Conversation between 2 or more Users. The participants cannot be modified 
+ * after it is created (i.e. no joining the Conversation after it starts).
+ * 
+ */
 
 public class Conversation {
     private final String convoID;
@@ -54,7 +59,7 @@ public class Conversation {
      * @return a String that is an alphabetized list of the usernames,
      * with spaces after each (including the last one)
      */
-    public String alphabetizeHashMap(ConcurrentHashMap<String, UserInfo> participants){
+    protected String alphabetizeHashMap(ConcurrentHashMap<String, UserInfo> participants){
         List<String> userList = new ArrayList<String>();
         //make a list of the usernames
         for(String name : participants.keySet()){

@@ -13,6 +13,13 @@ public class ServerMessage {
     private final ArrayList<Socket> recipients;
     private final String text;
     private final ChatServer server;
+    
+    /**
+     * Make the ServerMessage
+     * @param recipients the Users to send this message to
+     * @param text the text of the message
+     * @param server the ChatServer that the message should be sent through
+     */
     public ServerMessage(ArrayList<Socket> recipients, String text, ChatServer server) {
         this.recipients = recipients;
         this.text = text + '\n';

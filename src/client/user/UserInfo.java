@@ -3,7 +3,8 @@ package client.user;
 import java.net.Socket;
 
 /**
- * Object to hold information about other users
+ * Object to hold information about other users, specifically their username, 
+ * desired color, and the Socket through which to reach them.
  *
  */
 public class UserInfo {

@@ -12,6 +12,11 @@ public class ChatServerThread extends Thread {
     Socket socket;
     ChatServer server;
     
+    /**
+     * Make the thread
+     * @param socky the Socket the server uses to communicate
+     * @param servy the ChatServer that made the thread
+     */
     public ChatServerThread(Socket socky, ChatServer servy) {
         socket = socky;
         server = servy;
