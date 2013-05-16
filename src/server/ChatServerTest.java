@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import org.junit.Test;
 
 /**
- * Partitions the input space to test handleClientRequest
+ * Partitions the input space to test inputs to handleClientRequest that can be handled wit
  * 
  *
  */
