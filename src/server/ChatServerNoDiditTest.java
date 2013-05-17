@@ -38,7 +38,7 @@ public class ChatServerNoDiditTest {
 
     @Test
     /**
-     * Makes sure no exceptions are thrown
+     * test user logging in that appropriate messages are sent
      * @throws UnknownHostException
      * @throws IOException
      */
@@ -124,7 +124,7 @@ public class ChatServerNoDiditTest {
     
     @Test
     /**
-     * Make sure if a user logs out the other online user(s) gets a message about it
+     * Make sure start convo causes right messages to be sent
      * @throws UnknownHostException
      * @throws IOException
      */
