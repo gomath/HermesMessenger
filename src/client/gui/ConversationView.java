@@ -190,9 +190,9 @@ public class ConversationView extends JPanel{
                 if (gui.getUser().getInactiveConvos().keySet().contains(convo.getConvoID())) {
                     //SHOW CONVERSATION HISTORY
                     //Create and set up the window.
-                    frame = new JFrame(parseConvoID(convo.getConvoID()) + "Chat History");
-                    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    frame.setPreferredSize(new Dimension(400, 300));
+                    JFrame histFrame = new JFrame(parseConvoID(convo.getConvoID()) + "Chat History");
+                    histFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    histFrame.setPreferredSize(new Dimension(400, 300));
                     
                     //CREATE JLIST CONTAINING HISTORY
                     DefaultListModel historyModel = new DefaultListModel();
@@ -203,11 +203,11 @@ public class ConversationView extends JPanel{
                         historyModel.addElement(msg.getSender().getUsername() + ": " + msg.getText());
                     }
                     //Add content to the window.
-                    frame.add(historyScroll, BorderLayout.CENTER);
+                    histFrame.add(historyScroll, BorderLayout.CENTER);
                     
                     //Display the window.
-                    frame.pack();
-                    frame.setVisible(true);
+                    histFrame.pack();
+                    histFrame.setVisible(true);
                 //if the convo is open
                 } else if (gui.getUser().getMyConvos().keySet().contains(convo.getConvoID())) {
                     JOptionPane.showMessageDialog(getRootPane(), "Conversation is currently active");

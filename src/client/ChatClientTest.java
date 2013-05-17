@@ -58,7 +58,8 @@ public class ChatClientTest {
     
     /**
      * public static void main(String[] args)
-     * 
+     * tested in the visual system test and can verify it works because
+     * everything 
      */
 
     
