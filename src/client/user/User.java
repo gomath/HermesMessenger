@@ -366,18 +366,13 @@ public class User {
         if (inactiveConvos.keySet().contains(convo.getConvoID())) {
             myConvos.put(convo.getConvoID(), inactiveConvos.get(convo.getConvoID())); //add the inactive convo
             inactiveConvos.remove(convo.getConvoID()); //no longer inactive
-            //update tab from GUI thread
-            //will already be in event handling thread so no need to make a runnable
-            convoView.updateTabs();
-            convoView.fillHistory(convo.getConvoID()); 
-        } else if(!myConvos.keySet().contains(convo.getConvoID())) {
+        } else {
             myConvos.put(convo.getConvoID(), convo);
-            //update tab from GUI thread
-            //will already be in event handling thread so no need to make a runnable
-            convoView.updateTabs();
-            convoView.fillHistory(convo.getConvoID()); 
         }
-          
+        //update tab from GUI thread
+        //will already be in event handling thread so no need to make a runnable
+        convoView.updateTabs();
+        convoView.fillHistory(convo.getConvoID());   
     }
     
     /**
@@ -385,24 +380,22 @@ public class User {
      * @param convo the conversation to be removed
      */
     private void removeMyConvo(Conversation convo){
-        if(myConvos.keySet().contains(convo.getConvoID())) {
-            final class updateRunnable implements Runnable {
-                private Conversation convo;
-                
-                public updateRunnable(Conversation convo1){
-                    convo = convo1;
-                }
-                public void run(){
-                    convoView.removeTab(convo.getConvoID());
-                }  
-            }
-            Runnable update = new updateRunnable(convo);
-            SwingUtilities.invokeLater(update);
+        final class updateRunnable implements Runnable {
+            private Conversation convo;
             
-            //make the convo inactive
-            inactiveConvos.put(convo.getConvoID(), myConvos.get(convo.getConvoID()));
-            myConvos.remove(convo.getConvoID());
+            public updateRunnable(Conversation convo1){
+                convo = convo1;
+            }
+            public void run(){
+                convoView.removeTab(convo.getConvoID());
+            }  
         }
+        Runnable update = new updateRunnable(convo);
+        SwingUtilities.invokeLater(update);
+        
+        //make the convo inactive
+        inactiveConvos.put(convo.getConvoID(), myConvos.get(convo.getConvoID()));
+        myConvos.remove(convo.getConvoID());
     }
     
     /**
