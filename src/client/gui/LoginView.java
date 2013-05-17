@@ -176,7 +176,7 @@ public class LoginView extends JFrame{
                     JOptionPane.showMessageDialog(getContentPane(), "Invalid IP Address");
                     ipAddress.setText("IP Address");
                 } catch (Exception e5) {
-                    JOptionPane.showMessageDialog(getContentPane(), e5.getStackTrace());
+                    JOptionPane.showMessageDialog(getContentPane(), e5);
                     ipAddress.setText("IP Address");
                     portNumber.setText("Port");
                     username.setText("Username");
