@@ -13,9 +13,10 @@ import org.junit.Test;
 import client.user.UserInfo;
 
 /**
+ * OVERALL TESTING STRATEGEM
  * Partitions the input space to test inputs to handleClientRequest that can be handled without creating real sockets
  * More extensive testing of message passing in ChatServerNoDiditTest.java
- * 
+ * ALSO: tested all testable method to ensure full coverage
  *
  */
 public class ChatServerTest {

@@ -13,6 +13,7 @@ import org.junit.Test;
 
 /**
  * @category no_didit
+ * OVERALL TESTING STRATAGEM:
  * This is an integration test that tests the methods of the server that cannot be tested without a real socket. 
  */
 public class ChatServerNoDiditTest {
