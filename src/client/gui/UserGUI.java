@@ -36,7 +36,6 @@ public class UserGUI  extends JFrame {
      * called to close conversation view and reopen the login view
      */
     public void openLoginView() {
-        System.out.println("I'm closing stuff haha");
         convo.close();
         this.login = new LoginView(this);
         client.getUser().setLoginView(this.login);

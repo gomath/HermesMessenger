@@ -189,7 +189,6 @@ public class LoginView extends JFrame{
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
         //HORIZONTAL GROUPINGS
-        System.out.println("grouping: " + Thread.currentThread().getId());
         layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
                 .addComponent(hermes)
                 .addComponent(messenger)
