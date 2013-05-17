@@ -17,7 +17,7 @@ import client.user.UserInfo;
  */
 public class ChatServer {
     private final ServerSocket serverSocket;
-    private ConcurrentHashMap<String, UserInfo> infoMap = new ConcurrentHashMap<String,UserInfo>();
+    protected ConcurrentHashMap<String, UserInfo> infoMap = new ConcurrentHashMap<String,UserInfo>();
     /**
      * Makes a ChatServer that listens for connections on port.
      * @param port port number, requires 0 <= port <= 65535.
@@ -110,7 +110,7 @@ public class ChatServer {
      * INVALID_USER if username already in use
      * ONLINE_USERS if username is unique
      */
-    private ArrayList<ServerMessage> addUser(String username, String color, Socket socket) {
+    protected ArrayList<ServerMessage> addUser(String username, String color, Socket socket) {
         ArrayList<ServerMessage> messageList = new ArrayList<ServerMessage>();
         if (infoMap.containsKey(username)) {
             //Username is already used, return INVALID_USER message
@@ -268,7 +268,7 @@ public class ChatServer {
      * @param username the username of the client to send to
      * @return ArrayList containing socket just of that username
      */
-    private ArrayList<Socket> justMe (String username) {
+    protected ArrayList<Socket> justMe (String username) {
         ArrayList<Socket> recipients = new ArrayList<Socket>();
         recipients.add(infoMap.get(username).getSocket());
         return recipients;

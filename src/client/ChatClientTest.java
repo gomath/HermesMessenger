@@ -10,6 +10,7 @@ import org.junit.Test;
 import client.user.User;
 
 /**
+ * OVERALL TESTING STRATEGEM
  * Tests helper methods of ChatClientTest that can be tested automatically
  * Strategy: uses coverage to test all the methods that can be automatically tested
  *
@@ -39,27 +40,27 @@ public class ChatClientTest {
     }
     
     /**
-     * public void attemptLogin(String IP, String port, String username,String color, UserGUI, gui)
+     * ATTEMPTLOGIN
      * tested with valid inputs manually when the system is manually tested and visually inspected
      * tested that responds to invalid input appropriately in ChatClientNoDiditTest
      */
     
     /**
-     * public User getUser()
+     * GETUSER
      * tested in conjunction with setUser
      */
     
     /**
-     * public void runUser()
+     * RUNUSER
      * tested manually when Client is run - can tell if we are able to do things in the client
      * like login and start conversations and receive messages from other users since User handles 
      * the client server interaction
      */
     
     /**
-     * public static void main(String[] args)
+     * MAIN
      * tested in the visual system test and can verify it works because
-     * everything 
+     * everything shows up as expected and the client behaves as expected
      */
 
     
