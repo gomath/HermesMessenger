@@ -1,4 +1,5 @@
 /**
+ * @category no_didit
  * CONVERSATION VIEW VISUAL TESTING
  * The conversation view is where the majority of user interaction goes on.
  * The obvious check was the GUI was properly laid out, containing all the

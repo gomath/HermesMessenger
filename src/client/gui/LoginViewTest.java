@@ -1,4 +1,5 @@
 /**
+ * @category no_didit
  * LOGIN VIEW VISUAL TESTING
  * The login view creates the window for user’s to enter credentials
  * to log on onto the chat server. The constructor is easily verified

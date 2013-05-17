@@ -1,4 +1,5 @@
 /**
+ * @category no_didit
  * USER GUI VISUAL TESTING STRATEGY
  * UserGUI is in charge of opening and closing the appropriate windows.
  * This was visually tested by running the client. This opens the login
