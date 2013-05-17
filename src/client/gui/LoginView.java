@@ -10,6 +10,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import javax.swing.DefaultListCellRenderer;
@@ -173,10 +174,14 @@ public class LoginView extends JFrame{
                     JOptionPane.showMessageDialog(getContentPane(), "Invalid Username");
                     username.setText("Username");
                 } catch (ConnectException e4) {
+                    JOptionPane.showMessageDialog(getContentPane(), "Invalid IP Address or Port");
+                    ipAddress.setText("IP Address");
+                    portNumber.setText("Port");
+                } catch (SocketTimeoutException e5) {
                     JOptionPane.showMessageDialog(getContentPane(), "Invalid IP Address");
                     ipAddress.setText("IP Address");
-                } catch (Exception e5) {
-                    JOptionPane.showMessageDialog(getContentPane(), e5);
+                } catch (Exception e6) {
+                    JOptionPane.showMessageDialog(getContentPane(), e6);
                     ipAddress.setText("IP Address");
                     portNumber.setText("Port");
                     username.setText("Username");

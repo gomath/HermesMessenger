@@ -163,14 +163,16 @@ public class ConversationView extends JPanel{
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 Object[] usernames = list.getSelectedValues();
-                try {
-                    //start a conversation with the selected user(s)
-                    gui.getUser().startConvo(usernames);
-                    tabby.setSelectedIndex(tabby.getTabCount()-1);
-                } catch (DuplicateConvoException e) {
-                    //if the convo already exists, don't restart it
-                    JOptionPane.showMessageDialog(getRootPane(), "Conversation already exists");
-                } 
+                if (usernames.length > 0) {
+                    try {
+                        //start a conversation with the selected user(s)
+                        gui.getUser().startConvo(usernames);
+                        tabby.setSelectedIndex(tabby.getTabCount()-1);
+                    } catch (DuplicateConvoException e) {
+                        //if the convo already exists, don't restart it
+                        JOptionPane.showMessageDialog(getRootPane(), "Conversation already exists");
+                    }
+                }
             }
         });
         //VIEW HISTORY CONVERSATION BUTTON

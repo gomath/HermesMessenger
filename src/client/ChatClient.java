@@ -1,7 +1,9 @@
 package client;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
 import javax.swing.SwingUtilities;
@@ -67,7 +69,10 @@ public class ChatClient {
             }
         }
         //connect if no errors
-        Socket socket = new Socket(IP, Integer.parseInt(port));
+        SocketAddress sa = new InetSocketAddress(IP, Integer.parseInt(port));
+        Socket socket = new Socket();
+        socket.connect(sa, 1000);
+        //Socket socket = new Socket(IP, Integer.parseInt(port));
         
         //if no errors thrown, set the user attribute of the ChatClient
         this.setUser(username, color, socket);
