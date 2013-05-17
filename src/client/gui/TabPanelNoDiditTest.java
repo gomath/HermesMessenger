@@ -18,7 +18,7 @@ import client.user.UserInfo;
  * opening and closing conversations were all tested.
  *
  */
-public class TabPanelTest {
+public class TabPanelNoDiditTest {
     //Test creation of a tab panel
     @Test
     public void tabPanelTest() {
