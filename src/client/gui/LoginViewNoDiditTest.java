@@ -1,3 +1,5 @@
+package client.gui;
+
 /**
  * @category no_didit
  * LOGIN VIEW VISUAL TESTING
@@ -13,3 +15,5 @@
  * If any of the credentials is incorrect, a dialog pop up appears
  * explaining the error and returns the user to the login screen to try again.
  */
+public class LoginViewNoDiditTest {
+}

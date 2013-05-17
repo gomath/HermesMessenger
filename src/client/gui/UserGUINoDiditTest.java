@@ -1,3 +1,5 @@
+package client.gui;
+
 /**
  * @category no_didit
  * USER GUI VISUAL TESTING STRATEGY
@@ -9,3 +11,5 @@
  * all worked properly.
  * 
  */
+public class UserGUINoDiditTest {
+}

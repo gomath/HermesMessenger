@@ -1,3 +1,5 @@
+package client.gui;
+
 /**
  * @category no_didit
  * CONVERSATION VIEW VISUAL TESTING
@@ -18,3 +20,5 @@
  * sending messages simultaneously. All of the behaviors remained normal in
  * all these cases.
  */
+public class ConversationViewNoDiditTest {
+}
