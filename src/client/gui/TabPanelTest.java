@@ -11,6 +11,7 @@ import client.user.Conversation;
 import client.user.User;
 import client.user.UserInfo;
 /**
+ * @category no_didit
  * Our visual tests for TabPanel ensure that the panel is correctly generated
  * and that the methods that fill in the conversation history do so
  * accurately. Multiple open tabs, multiple user conversations, and repeatedly
