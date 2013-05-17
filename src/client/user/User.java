@@ -153,8 +153,11 @@ public class User {
                 }
             }
             //add or remove the convo
-            if(tokens[0].equals("-x")){removeMyConvo(convo);}
-            else{addNewMyConvo(convo);} //if it is "-s"
+            if(myConvos.keySet().contains(convo.getConvoID()) && tokens[0].equals("-x")) {
+                removeMyConvo(convo);
+            } else if (!myConvos.keySet().contains(convo.getConvoID()) && tokens[0].equals("-s")) {
+                addNewMyConvo(convo);
+            }
         }
         //if the username is invalid
         else if(tokens[0].equals("-i")){ 
