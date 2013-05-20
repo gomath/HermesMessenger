@@ -1,0 +1,51 @@
+Project 2: GUI Chat				disanto, gomath, jtilton
+===================				(grader: Leonid)
+
+Team contract: 5 / 5
+
+Abstract Design: 9 / 10
+  Snapshot diagram: 4 / 5
+  Conversation and protocol: 5 / 5
+
+System Design: 15 / 15
+  Usability design: 5 / 5
+  Code design and use of MVC: 5 / 5
+  Concurrency strategy: 5 / 5
+
+Testing: 15 / 15
+  Testing strategy: 10 / 10
+  Testing execution: 5 / 5
+
+Implementation: 49 / 50
+  Initial demo: 10 / 10
+  Correctness: 15 / 15
+  Code: 9 / 10
+  User interface: 15 / 15
+
+Bonus points: 1
+(For features above and beyond the specs.)
+
+TOTAL TEAM SCORE: 94 / 95
+
+(Individual scores will include 5 points for the reflection assignment,
+ and will be posted on Stellar.)
+
+Feedback
+--------
+
+Snapshot diagram and protocol:
+You guys had a solid plan and diagram, though you could have maybe
+had a little more discussion of possible alternatives.
+
+System design and testing:
+Fantastic job on both. Your milestone 2 was very solid and your
+testing strategy and implementation were both great.
+
+Code:
+Your code was generally quite readable, but your organization was a
+little bit off. In particular, having all of the user information
+stored in the client made it a little bit hard to follow the server
+code. Other than that, great job.
+
+Nice job on the colors! I particularly liked how the tab changed
+color.
